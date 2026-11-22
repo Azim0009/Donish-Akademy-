@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== Дизайн-токены Donish Academy (RGB-каналы для прозрачности в Tailwind) ===== */
+@layer base {
+  :root {
+    --c-canvas: 244 247 244;    /* фон приложения */
+    --c-surface: 255 255 255;   /* карточки, сайдбар */
+    --c-sunken: 238 243 239;    /* поля, полосы таблиц */
+    --c-ink: 20 32 25;          /* основной текст */
+    --c-muted: 94 110 100;      /* вторичный текст */
+    --c-line: 226 232 227;      /* границы */
+    --c-brand: 31 157 76;       /* зелёный Donish */
+    --c-brand-strong: 22 122 58;
+    --c-brand-soft: 230 245 234;
+    --c-brand-ink: 255 255 255; /* текст на зелёном */
+    --c-amber: 233 162 59;
+    --c-amber-soft: 252 242 224;
+    --c-danger: 220 68 70;
+    --c-danger-soft: 252 231 231;
+    --c-info: 62 123 250;
+    --c-info-soft: 232 239 254;
+    color-scheme: light;
+  }
+
+  .dark {
+    --c-canvas: 13 21 16;
+    --c-surface: 20 31 24;
+    --c-sunken: 26 39 31;
+    --c-ink: 230 238 232;
+    --c-muted: 143 160 150;
+    --c-line: 36 51 42;
+    --c-brand: 53 191 104;
+    --c-brand-strong: 75 208 124;
+    --c-brand-soft: 24 51 36;
+    --c-brand-ink: 8 22 13;
+    --c-amber: 240 178 82;
+    --c-amber-soft: 51 40 20;
+    --c-danger: 239 98 100;
+    --c-danger-soft: 56 26 27;
+    --c-info: 110 155 255;
+    --c-info-soft: 25 35 61;
+    color-scheme: dark;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-canvas font-sans text-[15px] leading-6 text-ink;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand/60 ring-offset-2 ring-offset-canvas;
+  }
+
+  ::selection {
+    @apply bg-brand/20;
+  }
+}
+
+@layer components {
+  .h-display {
+    @apply font-display font-semibold tracking-tight;
+  }
+  .scroll-thin {
+    scrollbar-width: thin;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

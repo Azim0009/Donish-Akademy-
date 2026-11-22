@@ -1,0 +1,40 @@
+import { lazy } from 'react';
+import type { RouteObject } from 'react-router-dom';
+import { PATHS } from '@/core/config/paths';
+import type { StaffRole } from '@/core/auth/roles';
+import { RequireRole } from '@/app/router/guards/RequireRole';
+import { PanelLayout } from '@/shared/layouts/PanelLayout';
+import { MENUS } from '@/core/navigation/menus';
+
+const StaffHomePage = lazy(() => import('./pages/StaffHomePage'));
+const TasksPage = lazy(() => import('@/modules/tasks/pages/TasksPage'));
+const NotificationsPage = lazy(() => import('@/modules/notifications/pages/NotificationsPage'));
+const AccountSettingsPage = lazy(() => import('@/modules/account/pages/AccountSettingsPage'));
+
+/**
+ * Общая панель сотрудников филиала: бухгалтер, уборщица, отдел продаж.
+ * У всех: Главная, Задачи, Уведомления, Настройки. Свои разделы добавим позже
+ * (бухгалтеру — финансы, продажам — заявки).
+ */
+function staffRoutes(role: StaffRole): RouteObject {
+  const p = PATHS[role];
+  const menu = MENUS[role];
+  return {
+    path: p.root,
+    element: (
+      <RequireRole roles={[role]}>
+        <PanelLayout titleKey={`panels.${role}`} basePath={p.root} menu={menu} />
+      </RequireRole>
+    ),
+    children: [
+      { index: true, element: <StaffHomePage /> },
+      { path: p.tasks, element: <TasksPage /> },
+      { path: p.notifications, element: <NotificationsPage /> },
+      { path: p.settings, element: <AccountSettingsPage /> },
+    ],
+  };
+}
+
+export const accountantRoutes = staffRoutes('accountant');
+export const cleanerRoutes = staffRoutes('cleaner');
+export const salesRoutes = staffRoutes('sales');
