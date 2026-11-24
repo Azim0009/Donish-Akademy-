@@ -264,7 +264,11 @@
     "quizFailed": "You need at least 60%. Re-read the theory and try again.",
     "tryAgain": "Try again",
     "finish": "Finish lesson",
-    "completed": "Lesson complete! +{{xp}} XP"
+    "completed": "Lesson complete! +{{xp}} XP",
+    "stepOf": "Step {{n}} of {{total}}",
+    "noVideo": "No video for this lesson yet",
+    "noVideoHint": "Read the theory and try the example — the video will be added later.",
+    "videoHint": "Watch at your own pace: pause and rewatch any time."
   },
   "exercise": {
     "notSupportedYet": "This task type is coming in the next version."
@@ -374,7 +378,7 @@
     "saved": "Lesson saved",
     "theory": "Theory",
     "markdownHint": "Markdown: ## heading, - list, `code`",
-    "videoUrl": "Lesson recording link",
+    "videoUrl": "Video lesson link",
     "videoHint": "YouTube (unlisted), Google Drive or Vimeo",
     "exerciseTitle": "Task title",
     "exerciseText": "Task description",

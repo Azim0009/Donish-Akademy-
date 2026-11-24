@@ -3,9 +3,9 @@ import type { Role } from '@/core/auth/roles';
 import { isStrongPassword, LOGIN_RE, staffEmail } from '@/shared/lib/credentials';
 import { http } from 'msw';
 import { ENDPOINTS } from '@/core/api/endpoints';
-import type { Group, UserListItem } from '@/core/types/models';
+import type { Group, Lesson, UserListItem } from '@/core/types/models';
 import { MAIN_TRACK } from '@/core/config/course';
-import { db, getLesson, stats } from '../db';
+import { db, getLesson, saveLessonEdit, stats } from '../db';
 import { deletePerson, makeContract, updatePerson } from '../db';
 import { ok, fail, url, query, matches } from './utils';
 import { pct, revenue, monthRevenue } from '../finance';
@@ -267,7 +267,12 @@ export const directorHandlers = [
     const lesson = getLesson(params.id as string);
     return lesson ? ok(lesson) : fail(404, 'ENTITY_NOT_FOUND', 'Урок не найден');
   }),
-  http.put(url('/director/lessons/:id'), async ({ request }) => ok(await request.json())),
+  http.put(url('/director/lessons/:id'), async ({ params, request }) => {
+    const body = (await request.json()) as Partial<Lesson>;
+    if (!getLesson(params.id as string)) return fail(404, 'ENTITY_NOT_FOUND', 'Урок не найден');
+    saveLessonEdit(params.id as string, body);
+    return ok(getLesson(params.id as string));
+  }),
 
   // --- Группы ---
   http.get(url(ENDPOINTS.director.groups), ({ request }) =>

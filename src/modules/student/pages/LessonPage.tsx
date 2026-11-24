@@ -10,18 +10,29 @@ import { LessonStepper } from '../components/lesson/LessonStepper';
 import { LiveStep } from '../components/lesson/steps/LiveStep';
 import { RecordingStep } from '../components/lesson/steps/RecordingStep';
 import { PracticeStep } from '../components/lesson/steps/PracticeStep';
+import { TheoryStep } from '../components/lesson/steps/TheoryStep';
+import { VideoStep } from '../components/lesson/steps/VideoStep';
+import { ExampleStep } from '../components/lesson/steps/ExampleStep';
 import { QuizStep } from '../components/lesson/steps/QuizStep';
 
 /**
- * Экран урока: онлайн-урок с ментором → запись урока → домашнее задание → тест.
+ * Экран урока: теория → видео → пример → онлайн-урок с ментором → запись → домашнее задание → тест.
  * ?step=recording — открыть сразу запись (ссылка из расписания).
  */
 export default function LessonPage() {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
   const { lessonId = '' } = useParams();
   const [params] = useSearchParams();
-  const initial = (LESSON_STEPS as readonly string[]).includes(params.get('step') ?? '') ? (params.get('step') as LessonStep) : 'live';
+  // новый урок или ?step= из ссылки — начинаем с чистого состояния
+  return <LessonView key={`${lessonId}:${params.get('step') ?? ''}`} lessonId={lessonId} />;
+}
+
+function LessonView({ lessonId }: { lessonId: string }) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const initial = (LESSON_STEPS as readonly string[]).includes(params.get('step') ?? '')
+    ? (params.get('step') as LessonStep)
+    : 'theory';
   const { data: lesson, isLoading, isError, refetch } = useLesson(lessonId);
   const complete = useCompleteLesson();
   const [step, setStep] = useState<LessonStep>(initial);
@@ -43,21 +54,28 @@ export default function LessonPage() {
     complete.mutate(lesson.id, {
       onSuccess: ({ xpEarned }) => {
         toast(t('lesson.completed', { xp: xpEarned }));
-        navigate(lesson.nextLessonId ? generatePath(PATHS.student.lesson, { lessonId: lesson.nextLessonId }) : PATHS.student.root);
-        setStep('live');
-        setVisited(new Set(['live']));
-        setQuizPassed(false);
+        navigate(
+          lesson.nextLessonId
+            ? generatePath(PATHS.student.lesson, { lessonId: lesson.nextLessonId })
+            : PATHS.student.root,
+        );
       },
     });
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6">
       <PageHeader
-        back={{ to: generatePath(PATHS.student.track, { trackId: lesson.trackId }), label: lesson.moduleTitle }}
+        back={{
+          to: generatePath(PATHS.student.track, { trackId: lesson.trackId }),
+          label: lesson.moduleTitle,
+        }}
         title={lesson.title}
         meta={
           <>
-            <Badge><FiClock className="mr-0.5" /> {t('common.minutes', { count: lesson.durationMinutes })}</Badge>
+            <Badge>
+              <FiClock className="mr-0.5" />{' '}
+              {t('common.minutes', { count: lesson.durationMinutes })}
+            </Badge>
             <Badge tone="amber">+{lesson.xpReward} XP</Badge>
           </>
         }
@@ -66,14 +84,24 @@ export default function LessonPage() {
       <LessonStepper current={step} onChange={go} visited={visited} />
 
       <Card className="p-5 sm:p-8">
+        {step === 'theory' && <TheoryStep content={lesson.theoryContent} />}
+        {step === 'video' && <VideoStep url={lesson.videoUrl} title={lesson.title} />}
+        {step === 'example' && <ExampleStep code={lesson.exampleCode} />}
         {step === 'live' && <LiveStep lesson={lesson} onWatchRecording={() => go('recording')} />}
-        {step === 'recording' && <RecordingStep url={lesson.videoUrl} title={lesson.title} />}
+        {step === 'recording' && <RecordingStep url={lesson.recordingUrl} title={lesson.title} />}
         {step === 'practice' && <PracticeStep lesson={lesson} />}
-        {step === 'quiz' && <QuizStep questions={lesson.quiz} onPassed={() => setQuizPassed(true)} />}
+        {step === 'quiz' && (
+          <QuizStep questions={lesson.quiz} onPassed={() => setQuizPassed(true)} />
+        )}
       </Card>
 
       <div className="flex items-center justify-between gap-3">
-        <Button variant="secondary" disabled={idx === 0} onClick={() => go(LESSON_STEPS[idx - 1])} leftIcon={<FiArrowLeft />}>
+        <Button
+          variant="secondary"
+          disabled={idx === 0}
+          onClick={() => go(LESSON_STEPS[idx - 1])}
+          leftIcon={<FiArrowLeft />}
+        >
           {t('common.back')}
         </Button>
         {idx < LESSON_STEPS.length - 1 ? (
@@ -81,7 +109,12 @@ export default function LessonPage() {
             {t(`lesson.steps.${LESSON_STEPS[idx + 1]}`)}
           </Button>
         ) : (
-          <Button onClick={finish} disabled={!quizPassed} loading={complete.isPending} leftIcon={<FiCheck />}>
+          <Button
+            onClick={finish}
+            disabled={!quizPassed}
+            loading={complete.isPending}
+            leftIcon={<FiCheck />}
+          >
             {t('lesson.finish')}
           </Button>
         )}

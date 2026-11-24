@@ -499,12 +499,37 @@ const demoCode: CodeFiles = {
   js: "document.querySelector('.btn').addEventListener('click', () => {\n  alert('Поехали!');\n});",
 };
 
-function lessonLive(lessonId: string): Pick<Lesson, 'videoUrl' | 'liveSession'> {
+/** Правки уроков из конструктора директора (теория, видео, пример, ДЗ, тест) */
+const lessonEdits = new Map<string, Partial<Lesson>>();
+export const saveLessonEdit = (id: string, body: Partial<Lesson>) => {
+  const allowed: (keyof Lesson)[] = [
+    'title',
+    'theoryContent',
+    'videoUrl',
+    'exampleCode',
+    'exercise',
+    'quiz',
+    'durationMinutes',
+  ];
+  const clean: Partial<Lesson> = {};
+  allowed.forEach((k) => {
+    if (body[k] !== undefined) (clean as Record<string, unknown>)[k] = body[k];
+  });
+  lessonEdits.set(id, { ...lessonEdits.get(id), ...clean });
+};
+/** Демо-видеоуроки: у первых уроков модуля есть видео, у остальных пока нет */
+const DEMO_VIDEOS = [
+  'https://www.youtube.com/watch?v=UB1O30fR-EE',
+  'https://www.youtube.com/watch?v=yfoY53QXEnI',
+  'https://www.youtube.com/watch?v=W6NZfCO5SIk',
+];
+
+function lessonLive(lessonId: string): Pick<Lesson, 'recordingUrl' | 'liveSession'> {
   const live =
     db.liveSessions.find(
       (x) => x.groupId === STUDENT_GROUP && x.lessonId === lessonId && !x.isCancelled,
     ) ?? null;
-  return { videoUrl: live?.recordingUrl ?? '', liveSession: live };
+  return { recordingUrl: live?.recordingUrl ?? '', liveSession: live };
 }
 
 export function getLesson(id: string): Lesson | null {
@@ -513,7 +538,7 @@ export function getLesson(id: string): Lesson | null {
     if (idx === -1) continue;
     const s = m.lessons[idx];
     const next = m.lessons[idx + 1] ?? db.modules[m.order]?.lessons[0] ?? null;
-    return {
+    const lesson: Lesson = {
       id: s.id,
       moduleId: m.id,
       moduleTitle: m.title,
@@ -524,6 +549,7 @@ export function getLesson(id: string): Lesson | null {
       xpReward: 50,
       status: s.status,
       theoryContent: `## ${s.title}\n\nВ этом уроке разберём тему «${s.title}» модуля ${m.title}. Сначала короткая теория, потом пример, который можно поменять прямо здесь, и практическое задание.\n\n### Главное\n\n- Каждая веб-страница — это HTML (структура), CSS (внешний вид) и JavaScript (поведение).\n- Пиши код маленькими шагами и сразу смотри результат в превью.\n- Если что-то не работает — проверь, закрыты ли все теги и скобки.\n\n### Попробуй сам\n\nОткрой пример ниже, поменяй текст и цвет кнопки и посмотри, как меняется страница.`,
+      videoUrl: s.order <= 2 ? DEMO_VIDEOS[(m.order + s.order) % DEMO_VIDEOS.length] : '',
       // Запись и онлайн-урок берём из расписания группы ученика (FS-01)
       ...lessonLive(s.id),
       exampleCode: demoCode,
@@ -579,6 +605,7 @@ export function getLesson(id: string): Lesson | null {
       ],
       nextLessonId: next?.id ?? null,
     };
+    return { ...lesson, ...lessonEdits.get(s.id) };
   }
   return null;
 }

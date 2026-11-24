@@ -160,7 +160,16 @@ export interface TrackModule {
  * Шаги урока: онлайн-урок с ментором → запись урока → домашнее задание → тест.
  * Уроки идут вживую по видеосвязи, после урока ментор добавляет запись.
  */
-export const LESSON_STEPS = ['live', 'recording', 'practice', 'quiz'] as const;
+/** Шаги урока: теория → видео → пример → онлайн-урок → запись → домашнее задание → тест */
+export const LESSON_STEPS = [
+  'theory',
+  'video',
+  'example',
+  'live',
+  'recording',
+  'practice',
+  'quiz',
+] as const;
 export type LessonStep = (typeof LESSON_STEPS)[number];
 
 export interface CodeFiles {
@@ -200,8 +209,10 @@ export interface Lesson {
   title: string;
   order: number;
   theoryContent: string; // markdown (конспект урока)
-  /** Запись урока (YouTube / Google Drive / Vimeo). Пусто — записи ещё нет */
+  /** Видеоурок от директора (YouTube / Google Drive / Vimeo). Пусто — видео нет */
   videoUrl: string;
+  /** Запись онлайн-урока группы ученика. Пусто — записи ещё нет */
+  recordingUrl: string;
   /** Онлайн-урок группы ученика по этому уроку (null — ещё не назначен) */
   liveSession: LiveSession | null;
   exampleCode: CodeFiles;
