@@ -88,6 +88,11 @@ export const ENDPOINTS = {
   },
   // --- Сотрудники филиала (бухгалтер, уборщик, продажи) ---
   staff: { home: '/staff/home' },
+  inventory: {
+    list: '/accountant/inventory',
+    item: (id: string) => `/accountant/inventory/${id}`,
+    checks: '/accountant/inventory/checks',
+  },
   // --- SuperAdmin (все филиалы) ---
   superAdmin: {
     dashboard: '/superadmin/dashboard',

@@ -32,9 +32,16 @@ export function Field({ label, hint, error, className, children, htmlFor }: Fiel
   );
 }
 
-type InputProps = InputHTMLAttributes<HTMLInputElement> & { label?: string; hint?: string; error?: string; leftIcon?: ReactNode };
+type InputProps = InputHTMLAttributes<HTMLInputElement> & {
+  label?: string;
+  hint?: string;
+  error?: string;
+  leftIcon?: ReactNode;
+  /** Кнопка справа внутри поля (например, глазок пароля) */
+  rightSlot?: ReactNode;
+};
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(({ label, hint, error, leftIcon, id, className, ...props }, ref) => {
+export const Input = forwardRef<HTMLInputElement, InputProps>(({ label, hint, error, leftIcon, rightSlot, id, className, ...props }, ref) => {
   const inputId = id ?? props.name;
   return (
     <Field label={label} hint={hint} error={error} htmlFor={inputId} className={className}>
@@ -44,9 +51,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({ label, hint, er
           id={inputId}
           ref={ref}
           aria-invalid={!!error}
-          className={clsx(control, 'h-10', leftIcon && 'pl-9', error && 'border-danger focus:border-danger focus:ring-danger/20')}
+          className={clsx(control, 'h-10', leftIcon && 'pl-9', rightSlot && 'pr-11', error && 'border-danger focus:border-danger focus:ring-danger/20')}
           {...props}
         />
+        {rightSlot && <span className="absolute right-1 top-1/2 -translate-y-1/2">{rightSlot}</span>}
       </div>
     </Field>
   );

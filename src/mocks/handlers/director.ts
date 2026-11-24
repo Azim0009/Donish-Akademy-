@@ -106,7 +106,7 @@ export const directorHandlers = [
     ok(
       db.reports
         .filter((r) => r.branchId === BRANCH)
-        .sort((a, b) => b.month.localeCompare(a.month)),
+        .sort((a, b) => b.month.localeCompare(a.month) || b.createdAt.localeCompare(a.createdAt)),
     ),
   ),
   // новый отчёт: показатели и доход подтягиваются сами, расходы — по шаблону прошлого месяца
@@ -114,15 +114,14 @@ export const directorHandlers = [
     const { month } = (await request.json()) as { month: string };
     if (!/^\d{4}-\d{2}$/.test(month) || month > monthKey(0))
       return fail(422, 'VALIDATION_ERROR', 'Неверный месяц');
-    if (db.reports.some((r) => r.branchId === BRANCH && r.month === month))
-      return fail(409, 'CONFLICT', 'Отчёт за этот месяц уже есть');
+    // ограничений по количеству нет: директор отправляет отчёт, когда нужно
     const branch = db.branches.find((b) => b.id === BRANCH)!;
     const prev = db.reports
       .filter((r) => r.branchId === BRANCH)
-      .sort((a, b) => b.month.localeCompare(a.month))[0];
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
     const now = new Date().toISOString();
     const rep: BranchReport = {
-      id: `rep_${BRANCH}_${month}`,
+      id: `rep_${BRANCH}_${month}_${Date.now()}`,
       branchId: BRANCH,
       branchName: branch.name,
       directorName: branch.directorName ?? 'Директор',

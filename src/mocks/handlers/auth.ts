@@ -1,13 +1,13 @@
 import { http } from 'msw';
 import { ENDPOINTS } from '@/core/api/endpoints';
-import { DEV_USERS } from '@/core/auth/devUsers';
+import { DEV_MULTI_USER, DEV_USERS } from '@/core/auth/devUsers';
 import type { User, UserListItem } from '@/core/types/models';
 import { STAFF_DOMAIN } from '@/shared/lib/credentials';
 import { db } from '../db';
 import { checkPassword } from '../passwords';
 import { ok, fail, url } from './utils';
 
-const allUsers = Object.values(DEV_USERS);
+const allUsers = [...Object.values(DEV_USERS), DEV_MULTI_USER];
 /** Демо-ученик входит и по телефону */
 const DEV_STUDENT_PHONE = '900000001';
 const digits9 = (s: string) => s.replace(/\D/g, '').slice(-9);

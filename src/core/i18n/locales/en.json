@@ -139,6 +139,9 @@
       "dashboard": "Home",
       "courses": "My courses",
       "students": "Students"
+    },
+    "accountant": {
+      "inventory": "Inventory"
     }
   },
   "validation": {
@@ -165,7 +168,7 @@
     "forgotPassword": "Forgot password?",
     "noAccount": "No account yet?",
     "haveAccount": "Already have an account?",
-    "demoHint": "Demo logins for development (password password1):",
+    "demoHint": "Demo logins (password password1). Tap a role — login and password are filled in, then “Log in”.",
     "registerTitle": "Create an account",
     "registerSubtitle": "And start your first HTML lesson today",
     "passwordHint": "At least 8 characters and one digit",
@@ -189,7 +192,9 @@
     "loginHint": "You can omit “@donish.tj”",
     "phoneLabel": "Phone number",
     "phoneHint": "Your login is your phone number; the branch administrator gave you the password",
-    "studentForgot": "Forgot your password? Ask the branch administrator — they will send a new one on WhatsApp."
+    "studentForgot": "Forgot your password? Ask the branch administrator — they will send a new one on WhatsApp.",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
   "authPanel": {
     "title": "Your path into IT — step by step",
@@ -1003,7 +1008,7 @@
     "allLeads": "All leads"
   },
   "reports": {
-    "directorDesc": "Send SuperAdmin a report every month: branch numbers, income and expenses, the month’s results. Numbers fill in automatically.",
+    "directorDesc": "Send SuperAdmin a report whenever you need — even several times a month: branch numbers, income and expenses, results. Numbers fill in automatically.",
     "superDesc": "Branch directors’ reports: income, expenses, profit and the month’s results. Accept them or send back for changes.",
     "new": "New report",
     "newHint": "Students, groups and income fill in automatically. Expenses are copied from the last report — adjust them.",
@@ -1086,7 +1091,8 @@
     "whatToFix": "What to fix",
     "acceptedToast": "Report accepted",
     "returnedToast": "Report sent back to the director",
-    "partialMonth": "month still in progress — income is partial"
+    "partialMonth": "month still in progress — income is partial",
+    "createdAt": "Created {{date}}"
   },
   "tasks": {
     "desc": {
@@ -1490,5 +1496,68 @@
       "error": "What does a null error in the console mean?",
       "margin": "What is the difference between margin and padding?"
     }
+  },
+  "inventory": {
+    "description": "Branch property: equipment, furniture, learning materials. Inventory numbers, value, responsible people and a “present / missing” check.",
+    "add": "Add",
+    "addHint": "The inventory number is assigned automatically.",
+    "edit": "Edit item",
+    "export": "Download Excel (CSV)",
+    "startCheck": "Start check",
+    "finishCheck": "Finish check",
+    "checkBanner": "Check in progress: {{marked}} of {{total}} marked. Walk through the rooms and mark every item.",
+    "checkIncomplete": "Mark every item: “Present” or “Missing”",
+    "checkCol": "Check",
+    "lastCheckCol": "Last check",
+    "found": "Present",
+    "notFound": "Missing",
+    "missing": "Not found",
+    "kpiItems": "Items · units",
+    "kpiItemsValue": "{{items}} · {{units}}",
+    "kpiValue": "Total value",
+    "kpiRepair": "Under repair",
+    "kpiLastCheck": "Last check",
+    "invNo": "Inv. no.",
+    "name": "Name",
+    "category": "Category",
+    "quantity": "Quantity",
+    "qtyShort": "Qty",
+    "unitPrice": "Unit price, TJS",
+    "total": "Value",
+    "location": "Location",
+    "locationPlaceholder": "Room 2",
+    "responsible": "Responsible",
+    "status": "Condition",
+    "purchasedAt": "Purchase date",
+    "note": "Note",
+    "allStatuses": "All conditions",
+    "search": "Name, no. or room",
+    "cat": {
+      "tech": "Equipment",
+      "furniture": "Furniture",
+      "education": "Learning",
+      "household": "Household",
+      "other": "Other"
+    },
+    "st": {
+      "in_use": "In use",
+      "storage": "In storage",
+      "repair": "Under repair",
+      "written_off": "Written off"
+    },
+    "qtyError": "Whole number from 1",
+    "priceError": "Price cannot be negative",
+    "dateError": "Date cannot be in the future",
+    "created": "Added: {{name}} ({{no}})",
+    "updated": "Saved: {{name}}",
+    "history": "Check history",
+    "noChecks": "No checks yet",
+    "checkSummary": "Found {{found}} of {{total}}",
+    "missingCount_one": "{{count}} item missing",
+    "missingCount_other": "{{count}} items missing",
+    "allFound": "All present",
+    "resultTitle": "Check complete",
+    "allFoundText": "All property is in place.",
+    "missingText": "Not found — check and report to the director:"
   }
 }

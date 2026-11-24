@@ -10,6 +10,7 @@ import { taskHandlers } from './tasks';
 import { leadHandlers } from './leads';
 import { partnerHandlers } from './partners';
 import { aiHandlers } from './ai';
+import { inventoryHandlers } from './inventory';
 
 export const handlers = [
   ...authHandlers,
@@ -24,4 +25,5 @@ export const handlers = [
   ...leadHandlers,
   ...partnerHandlers,
   ...aiHandlers,
+  ...inventoryHandlers,
 ];

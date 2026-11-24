@@ -5,7 +5,6 @@ import { PATHS } from '@/core/config/paths';
 import { useAuthStore } from '@/core/auth/authStore';
 import { ThemeToggle } from '@/shared/components/ThemeToggle';
 import { LanguageSwitcher } from '@/shared/components/LanguageSwitcher';
-import { DevRoleSwitcher } from '@/shared/components/DevRoleSwitcher';
 import { Button, Loader, Logo } from '@/shared/ui';
 
 /** Лендинг */
@@ -20,7 +19,6 @@ export function PublicLayout() {
             <Logo />
           </Link>
           <div className="ml-auto flex items-center gap-2">
-            <DevRoleSwitcher />
             <LanguageSwitcher />
             <ThemeToggle />
             {user ? (

@@ -9,7 +9,6 @@ import { ROLE_HOME } from '@/core/auth/roles';
 import { buildMenu, isSectionAllowed, sectionOfPath, userRoles } from '@/core/auth/access';
 import { ThemeToggle } from '@/shared/components/ThemeToggle';
 import { LanguageSwitcher } from '@/shared/components/LanguageSwitcher';
-import { DevRoleSwitcher } from '@/shared/components/DevRoleSwitcher';
 import { UserMenu } from '@/shared/components/UserMenu';
 import { Button, EmptyState, IconButton, Loader, Logo } from '@/shared/ui';
 import type { MenuItem } from './types';
@@ -134,7 +133,6 @@ export function PanelLayout({ titleKey, basePath, menu, topNav }: Props) {
 
   const controls = (
     <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
-      <DevRoleSwitcher />
       <LanguageSwitcher />
       <ThemeToggle />
       <Link to={`${basePath}/notifications`}>

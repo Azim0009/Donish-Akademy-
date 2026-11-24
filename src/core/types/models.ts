@@ -699,3 +699,41 @@ export interface AiAnswer {
   /** Сколько вопросов осталось сегодня */
   left: number;
 }
+
+// ---------- Инвентаризация (бухгалтер) ----------
+export type InventoryCategory = 'tech' | 'furniture' | 'education' | 'household' | 'other';
+export type InventoryStatus = 'in_use' | 'storage' | 'repair' | 'written_off';
+
+/** Позиция имущества филиала */
+export interface InventoryItem {
+  id: ID;
+  branchId: ID;
+  /** Инвентарный номер: INV-0001 */
+  invNo: string;
+  name: string;
+  category: InventoryCategory;
+  quantity: number;
+  /** Цена за единицу, TJS */
+  unitPrice: number;
+  location: string;
+  responsible: string;
+  status: InventoryStatus;
+  purchasedAt: string;
+  note: string;
+  /** Последняя сверка: нашли / не нашли */
+  lastCheck: { at: string; found: boolean } | null;
+}
+export type InventoryItemInput = Pick<
+  InventoryItem,
+  'name' | 'category' | 'quantity' | 'unitPrice' | 'location' | 'responsible' | 'status' | 'purchasedAt' | 'note'
+>;
+
+/** Проведённая инвентаризация (сверка) */
+export interface InventoryCheck {
+  id: ID;
+  at: string;
+  by: string;
+  total: number;
+  found: number;
+  missing: { id: ID; invNo: string; name: string }[];
+}

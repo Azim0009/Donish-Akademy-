@@ -143,6 +143,7 @@ export const DEV_USERS: Record<Role, User> = {
 export const DEV_MULTI_USER: User = {
   ...DEV_USERS.director,
   id: 'user_multi',
+  email: 'director.mentor@donish.tj',
   name: 'Директор + Ментор',
   roles: ['director', 'mentor'],
 };

@@ -126,7 +126,9 @@ export default function PartnersPage() {
         </Card>
       ) : (
         <Card className="overflow-hidden">
-          <Table columns={columns} rows={data} rowKey={(p) => p.id} />
+          <div className="px-5">
+            <Table columns={columns} rows={data} rowKey={(p) => p.id} />
+          </div>
         </Card>
       )}
       {open && <CreatePartnerModal onClose={() => setOpen(false)} />}

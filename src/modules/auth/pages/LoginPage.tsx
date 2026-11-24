@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiAlertCircle, FiBriefcase, FiSmartphone } from 'react-icons/fi';
+import { FiAlertCircle, FiBriefcase, FiEye, FiEyeOff, FiSmartphone } from 'react-icons/fi';
 import clsx from 'clsx';
 import { PATHS } from '@/core/config/paths';
 import { env } from '@/core/config/env';
@@ -13,15 +13,20 @@ import { loginSchema, type LoginForm } from '../schemas';
 import { useLogin } from '../hooks/useLogin';
 
 type Who = 'staff' | 'student';
-const demo = [
-  'superadmin',
-  'director',
-  'administrator',
-  'mentor',
-  'accountant',
-  'cleaner',
-  'sales',
+/** Демо-входы: по одному на роль. Нажал — логин и пароль подставились, осталось «Войти» */
+const DEMO: { key: string; role: string; login: string; who: Who }[] = [
+  { key: 'superadmin', role: 'roles.super_admin', login: 'superadmin', who: 'staff' },
+  { key: 'director', role: 'roles.director', login: 'director', who: 'staff' },
+  { key: 'administrator', role: 'roles.administrator', login: 'administrator', who: 'staff' },
+  { key: 'mentor', role: 'roles.mentor', login: 'mentor', who: 'staff' },
+  { key: 'multi', role: 'access.devMulti', login: 'director.mentor', who: 'staff' },
+  { key: 'accountant', role: 'roles.accountant', login: 'accountant', who: 'staff' },
+  { key: 'cleaner', role: 'roles.cleaner', login: 'cleaner', who: 'staff' },
+  { key: 'sales', role: 'roles.sales', login: 'sales', who: 'staff' },
+  { key: 'partner', role: 'roles.partner', login: 'farhod.nazarov', who: 'staff' },
+  { key: 'student', role: 'roles.student', login: '+992 90 000 00 01', who: 'student' },
 ];
+const DEMO_PASSWORD = 'password1';
 const PHONE_RE = /^\+?[\d\s()-]{9,20}$/;
 
 /**
@@ -32,6 +37,8 @@ export default function LoginPage() {
   const { t } = useTranslation();
   const login = useLogin();
   const [who, setWho] = useState<Who>('staff');
+  const [showPassword, setShowPassword] = useState(false);
+  const [picked, setPicked] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -110,8 +117,20 @@ export default function LoginPage() {
         <div>
           <Input
             label={t('auth.password')}
-            type="password"
+            id="login-password"
+            type={showPassword ? 'text' : 'password'}
             autoComplete="current-password"
+            rightSlot={
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+                aria-pressed={showPassword}
+                className="grid h-8 w-9 place-items-center rounded-[8px] text-muted hover:bg-sunken hover:text-ink"
+              >
+                {showPassword ? <FiEyeOff /> : <FiEye />}
+              </button>
+            }
             {...register('password')}
             error={errors.password && t(errors.password.message!)}
           />
@@ -146,32 +165,29 @@ export default function LoginPage() {
       {env.useMocks && (
         <div className="mt-8 rounded-card border border-dashed border-line p-4">
           <p className="text-xs text-muted">{t('auth.demoHint')}</p>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {demo.map((d) => (
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {DEMO.map((d) => (
               <button
-                key={d}
+                key={d.key}
                 type="button"
                 onClick={() => {
-                  switchTo('staff');
-                  setValue('login', `${d}@donish.tj`);
-                  setValue('password', 'password1');
+                  switchTo(d.who);
+                  setValue('login', d.login);
+                  setValue('password', DEMO_PASSWORD);
+                  setPicked(d.key);
                 }}
-                className="rounded-full bg-sunken px-3 py-1 text-xs font-medium hover:bg-brand-soft hover:text-brand-strong"
+                aria-pressed={picked === d.key}
+                className={clsx(
+                  'flex min-w-0 flex-col rounded-ctl border px-3 py-2 text-left transition-colors',
+                  picked === d.key
+                    ? 'border-brand bg-brand-soft'
+                    : 'border-line hover:border-brand/50 hover:bg-sunken',
+                )}
               >
-                {d}
+                <span className="truncate text-[13px] font-medium">{t(d.role)}</span>
+                <span className="truncate text-2xs text-muted">{d.login}</span>
               </button>
             ))}
-            <button
-              type="button"
-              onClick={() => {
-                switchTo('student');
-                setValue('login', '+992 90 000 00 01');
-                setValue('password', 'password1');
-              }}
-              className="rounded-full bg-sunken px-3 py-1 text-xs font-medium hover:bg-brand-soft hover:text-brand-strong"
-            >
-              student (+992 90 000 00 01)
-            </button>
           </div>
         </div>
       )}

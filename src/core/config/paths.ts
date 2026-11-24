@@ -80,6 +80,7 @@ export const PATHS = {
   // Сотрудники филиала: бухгалтер, уборщик (уборщица), отдел продаж
   accountant: {
     root: '/accountant',
+    inventory: '/accountant/inventory',
     tasks: '/accountant/tasks',
     notifications: '/accountant/notifications',
     settings: '/accountant/settings',

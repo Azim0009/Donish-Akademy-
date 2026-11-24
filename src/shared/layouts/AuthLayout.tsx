@@ -5,7 +5,6 @@ import { FiCheck, FiLock } from 'react-icons/fi';
 import { PATHS } from '@/core/config/paths';
 import { ThemeToggle } from '@/shared/components/ThemeToggle';
 import { LanguageSwitcher } from '@/shared/components/LanguageSwitcher';
-import { DevRoleSwitcher } from '@/shared/components/DevRoleSwitcher';
 import { Loader, Logo, LogoMark } from '@/shared/ui';
 
 const path = ['HTML', 'CSS', 'Responsive', 'Git', 'JavaScript'];
@@ -21,7 +20,6 @@ export function AuthLayout() {
             <Logo />
           </Link>
           <div className="flex items-center gap-2">
-            <DevRoleSwitcher />
             <LanguageSwitcher />
             <ThemeToggle />
           </div>

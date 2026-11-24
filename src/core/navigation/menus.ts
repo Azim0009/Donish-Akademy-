@@ -1,4 +1,5 @@
 import {
+  FiArchive,
   FiAward,
   FiBarChart2,
   FiBell,
@@ -159,10 +160,10 @@ export const MENUS: Record<Role, MenuItem[]> = {
       section: 'director.groups',
     },
     {
-      to: PATHS.director.mentors,
-      labelKey: 'pages.director.mentors',
-      icon: FiUserCheck,
-      section: 'director.mentors',
+      to: PATHS.director.staff,
+      labelKey: 'pages.director.staff',
+      icon: FiBriefcase,
+      section: 'director.staff',
     },
     {
       to: PATHS.director.students,
@@ -171,10 +172,10 @@ export const MENUS: Record<Role, MenuItem[]> = {
       section: 'director.students',
     },
     {
-      to: PATHS.director.staff,
-      labelKey: 'pages.director.staff',
-      icon: FiBriefcase,
-      section: 'director.staff',
+      to: PATHS.director.mentors,
+      labelKey: 'pages.director.mentors',
+      icon: FiUserCheck,
+      section: 'director.mentors',
     },
     {
       to: PATHS.director.leads,
@@ -312,6 +313,12 @@ export const MENUS: Record<Role, MenuItem[]> = {
       icon: FiHome,
       end: true,
       section: 'accountant.home',
+    },
+    {
+      to: PATHS.accountant.inventory,
+      labelKey: 'pages.accountant.inventory',
+      icon: FiArchive,
+      section: 'accountant.inventory',
     },
     {
       to: PATHS.accountant.tasks,

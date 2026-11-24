@@ -153,7 +153,9 @@ export default function PartnerStudentsPage() {
         </Card>
       ) : (
         <Card className="overflow-hidden">
-          <Table columns={columns} rows={rows} rowKey={(s) => s.id} />
+          <div className="px-5">
+            <Table columns={columns} rows={rows} rowKey={(s) => s.id} />
+          </div>
         </Card>
       )}
     </>

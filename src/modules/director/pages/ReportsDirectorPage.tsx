@@ -30,8 +30,9 @@ export default function ReportsDirectorPage() {
   if (isError || !data) return <ErrorState onRetry={refetch} />;
 
   const current = lastMonths(1)[0];
+  // последний отчёт за текущий месяц (их может быть несколько — директор отправляет, когда нужно)
   const cur = data.find((r) => r.month === current);
-  const free = lastMonths(3).filter((m) => !data.some((r) => r.month === m));
+  const months = lastMonths(3);
 
   return (
     <>
@@ -39,11 +40,9 @@ export default function ReportsDirectorPage() {
         title={t('pages.director.reports')}
         description={t('reports.directorDesc')}
         actions={
-          free.length > 0 && (
-            <Button leftIcon={<FiPlus />} onClick={() => setOpen(true)}>
-              {t('reports.new')}
-            </Button>
-          )
+          <Button leftIcon={<FiPlus />} onClick={() => setOpen(true)}>
+            {t('reports.new')}
+          </Button>
         }
       />
 
@@ -86,6 +85,7 @@ export default function ReportsDirectorPage() {
                 <div className="min-w-[160px] flex-1">
                   <p className="font-semibold">{formatMonth(r.month)}</p>
                   <p className="text-xs text-muted">
+                    {t('reports.createdAt', { date: formatDate(r.createdAt) })} ·{' '}
                     {r.sentAt
                       ? t('reports.sentAt', { date: formatDate(r.sentAt) })
                       : t('reports.notSent')}
@@ -102,7 +102,7 @@ export default function ReportsDirectorPage() {
         </div>
       )}
 
-      {open && <NewReportModal months={free} onClose={() => setOpen(false)} />}
+      {open && <NewReportModal months={months} onClose={() => setOpen(false)} />}
     </>
   );
 }
