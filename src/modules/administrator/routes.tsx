@@ -7,6 +7,8 @@ import { administratorMenu } from './menu';
 
 const AdministratorDashboardPage = lazy(() => import('./pages/AdministratorDashboardPage'));
 const AdministratorStudentsPage = lazy(() => import('./pages/AdministratorStudentsPage'));
+const AdministratorPaymentsPage = lazy(() => import('./pages/AdministratorPaymentsPage'));
+const LeadsPage = lazy(() => import('@/modules/leads/pages/LeadsPage'));
 const TasksPage = lazy(() => import('@/modules/tasks/pages/TasksPage'));
 const NotificationsPage = lazy(() => import('@/modules/notifications/pages/NotificationsPage'));
 const AccountSettingsPage = lazy(() => import('@/modules/account/pages/AccountSettingsPage'));
@@ -25,6 +27,8 @@ export const administratorRoutes: RouteObject = {
   children: [
     { index: true, element: <AdministratorDashboardPage /> },
     { path: PATHS.administrator.students, element: <AdministratorStudentsPage /> },
+    { path: PATHS.administrator.payments, element: <AdministratorPaymentsPage /> },
+    { path: PATHS.administrator.leads, element: <LeadsPage /> },
     { path: PATHS.administrator.tasks, element: <TasksPage /> },
     { path: PATHS.administrator.notifications, element: <NotificationsPage /> },
     { path: PATHS.administrator.settings, element: <AccountSettingsPage /> },

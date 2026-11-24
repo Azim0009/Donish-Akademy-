@@ -21,6 +21,7 @@ export const PATHS = {
     live: '/student/live',
     lesson: '/student/lessons/:lessonId',
     lessonEditor: '/student/lessons/:lessonId/editor',
+    scores: '/student/scores',
     profile: '/student/profile',
     notifications: '/student/notifications',
     settings: '/student/settings',
@@ -51,6 +52,8 @@ export const PATHS = {
     group: '/director/groups/:groupId',
     mentors: '/director/mentors',
     students: '/director/students',
+    staff: '/director/staff',
+    leads: '/director/leads',
     user: '/director/users/:userId',
     statistics: '/director/statistics',
     contracts: '/director/contracts',
@@ -65,12 +68,14 @@ export const PATHS = {
   administrator: {
     root: '/administrator',
     students: '/administrator/students',
+    leads: '/administrator/leads',
+    payments: '/administrator/payments',
     tasks: '/administrator/tasks',
     notifications: '/administrator/notifications',
     settings: '/administrator/settings',
   },
 
-  // Сотрудники филиала: бухгалтер, уборщица, отдел продаж
+  // Сотрудники филиала: бухгалтер, уборщик (уборщица), отдел продаж
   accountant: {
     root: '/accountant',
     tasks: '/accountant/tasks',
@@ -85,6 +90,7 @@ export const PATHS = {
   },
   sales: {
     root: '/sales',
+    leads: '/sales/leads',
     tasks: '/sales/tasks',
     notifications: '/sales/notifications',
     settings: '/sales/settings',

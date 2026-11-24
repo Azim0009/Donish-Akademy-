@@ -7,14 +7,15 @@ import { PanelLayout } from '@/shared/layouts/PanelLayout';
 import { MENUS } from '@/core/navigation/menus';
 
 const StaffHomePage = lazy(() => import('./pages/StaffHomePage'));
+const LeadsPage = lazy(() => import('@/modules/leads/pages/LeadsPage'));
 const TasksPage = lazy(() => import('@/modules/tasks/pages/TasksPage'));
 const NotificationsPage = lazy(() => import('@/modules/notifications/pages/NotificationsPage'));
 const AccountSettingsPage = lazy(() => import('@/modules/account/pages/AccountSettingsPage'));
 
 /**
- * Общая панель сотрудников филиала: бухгалтер, уборщица, отдел продаж.
- * У всех: Главная, Задачи, Уведомления, Настройки. Свои разделы добавим позже
- * (бухгалтеру — финансы, продажам — заявки).
+ * Общая панель сотрудников филиала: бухгалтер, уборщик (уборщица), отдел продаж.
+ * У всех: Главная, Задачи, Уведомления, Настройки. У продаж ещё «Лиды».
+ * Бухгалтеру свой раздел (финансы) добавим позже.
  */
 function staffRoutes(role: StaffRole): RouteObject {
   const p = PATHS[role];
@@ -28,6 +29,8 @@ function staffRoutes(role: StaffRole): RouteObject {
     ),
     children: [
       { index: true, element: <StaffHomePage /> },
+      // лиды — только у отдела продаж
+      ...(role === 'sales' ? [{ path: PATHS.sales.leads, element: <LeadsPage /> }] : []),
       { path: p.tasks, element: <TasksPage /> },
       { path: p.notifications, element: <NotificationsPage /> },
       { path: p.settings, element: <AccountSettingsPage /> },

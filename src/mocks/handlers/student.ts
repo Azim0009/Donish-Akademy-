@@ -1,6 +1,8 @@
 import { http } from 'msw';
 import { ENDPOINTS } from '@/core/api/endpoints';
 import { db, getLesson, studentProgress, STUDENT_GROUP } from '../db';
+import { coursePosition, studentScores } from '../scores';
+import { resolveMe } from '../tasks';
 import { ok, fail, url } from './utils';
 
 export const studentHandlers = [
@@ -24,6 +26,23 @@ export const studentHandlers = [
     }),
   ),
   http.get(url(ENDPOINTS.progress.me), () => ok(studentProgress())),
+  // Мои баллы: все месяцы курса до текущего
+  http.get(url(ENDPOINTS.progress.scores), ({ request }) => {
+    const me = resolveMe(request.headers.get('X-Mock-User'), 'student');
+    const u = db.users.find((x) => x.id === me.id && x.role === 'student');
+    const group = u && db.groups.find((g) => g.id === u.groupId);
+    if (!u || !group) return fail(404, 'ENTITY_NOT_FOUND', 'Группа не найдена');
+    const pos = coursePosition(group);
+    return ok({
+      groupName: group.name,
+      mentorName: group.mentorName,
+      ...pos,
+      months: Array.from({ length: pos.currentMonth }, (_, i) => ({
+        month: i + 1,
+        ...studentScores(u.id, group.id, i + 1),
+      })),
+    });
+  }),
   // Онлайн-уроки группы ученика (расписание + записи)
   http.get(url(ENDPOINTS.liveSessions.my), () =>
     ok(

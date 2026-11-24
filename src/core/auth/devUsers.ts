@@ -95,7 +95,7 @@ export const DEV_USERS: Record<Role, User> = {
   cleaner: {
     id: 'user_cleaner',
     email: 'cleaner@donish.tj',
-    name: 'Уборщица Душанбе',
+    name: 'Уборщик Душанбе',
     role: 'cleaner',
     branchId: 'branch_dushanbe',
     branchName: 'Душанбе',

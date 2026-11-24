@@ -10,9 +10,16 @@ import { useToggleBlock } from '../api/directorApi';
 import { ManageUser } from './ManageUser';
 import { UserRowActions, type ManageMode } from '@/shared/components/UserRowActions';
 import { AccessSummary } from '@/shared/components/AccessEditor';
+import { userRoles } from '@/core/auth/access';
 
-/** Таблица учеников или менторов филиала */
-export function UsersTable({ rows, role }: { rows: UserListItem[]; role: 'mentor' | 'student' }) {
+/** Таблица учеников, менторов или всех сотрудников филиала (staff) */
+export function UsersTable({
+  rows,
+  role,
+}: {
+  rows: UserListItem[];
+  role: 'mentor' | 'student' | 'staff';
+}) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const toggle = useToggleBlock();
@@ -87,61 +94,91 @@ export function UsersTable({ rows, role }: { rows: UserListItem[]; role: 'mentor
     ),
   };
 
+  const positionCol: Column<UserListItem> = {
+    key: 'position',
+    header: t('staffPage.position'),
+    cell: (u) => (
+      <div className="flex flex-wrap gap-1">
+        {userRoles(u)
+          .filter((r) => r !== 'director')
+          .map((r) => (
+            <Badge key={r} tone={r === u.role ? 'green' : 'gray'}>
+              {t(`roles.${r}`)}
+            </Badge>
+          ))}
+      </div>
+    ),
+  };
+  const phoneCol: Column<UserListItem> = {
+    key: 'phone',
+    header: t('branch.phone'),
+    hideOnMobile: true,
+    cell: (u) => <span className="whitespace-nowrap text-muted">{u.phone}</span>,
+  };
+  const accessCol: Column<UserListItem> = {
+    key: 'access',
+    header: t('access.button'),
+    hideOnMobile: true,
+    cell: (u) => <AccessSummary user={u} />,
+  };
+
   const columns: Column<UserListItem>[] =
-    role === 'student'
-      ? [
-          nameCol,
-          {
-            key: 'group',
-            header: t('users.group'),
-            cell: (u) => u.groupName ?? <span className="text-muted">{t('users.noGroup')}</span>,
-          },
-          {
-            key: 'progress',
-            header: t('users.progress'),
-            hideOnMobile: true,
-            cell: (u) => (
-              <div className="flex w-36 items-center gap-2">
-                <ProgressBar value={u.progress} size="sm" />
-                <span className="w-9 text-right text-xs text-muted">{u.progress}%</span>
-              </div>
-            ),
-          },
-          {
-            key: 'xp',
-            header: 'XP',
-            hideOnMobile: true,
-            className: 'text-right',
-            cell: (u) => formatNumber(u.xp),
-          },
-          statusCol,
-          manageCol,
-        ]
-      : [
-          nameCol,
-          {
-            key: 'phone',
-            header: t('branch.phone'),
-            hideOnMobile: true,
-            cell: (u) => <span className="whitespace-nowrap text-muted">{u.phone}</span>,
-          },
-          {
-            key: 'load',
-            header: t('director.load'),
-            cell: (u) => (
-              <span className="whitespace-nowrap">
-                {u.groupsCount} · {u.studentsCount}
-              </span>
-            ),
-          },
-          {
-            key: 'access',
-            header: t('access.button'),
-            hideOnMobile: true,
-            cell: (u) => <AccessSummary user={u} />,
-          },
-          manageCol,
-        ];
+    role === 'staff'
+      ? [nameCol, positionCol, phoneCol, accessCol, manageCol]
+      : role === 'student'
+        ? [
+            nameCol,
+            {
+              key: 'group',
+              header: t('users.group'),
+              cell: (u) => u.groupName ?? <span className="text-muted">{t('users.noGroup')}</span>,
+            },
+            {
+              key: 'progress',
+              header: t('users.progress'),
+              hideOnMobile: true,
+              cell: (u) => (
+                <div className="flex w-36 items-center gap-2">
+                  <ProgressBar value={u.progress} size="sm" />
+                  <span className="w-9 text-right text-xs text-muted">{u.progress}%</span>
+                </div>
+              ),
+            },
+            {
+              key: 'xp',
+              header: 'XP',
+              hideOnMobile: true,
+              className: 'text-right',
+              cell: (u) => formatNumber(u.xp),
+            },
+            statusCol,
+            manageCol,
+          ]
+        : [
+            nameCol,
+            {
+              key: 'phone',
+              header: t('branch.phone'),
+              hideOnMobile: true,
+              cell: (u) => <span className="whitespace-nowrap text-muted">{u.phone}</span>,
+            },
+            {
+              key: 'load',
+              header: t('director.load'),
+              cell: (u) => (
+                <span className="whitespace-nowrap">
+                  {u.groupsCount} · {u.studentsCount}
+                </span>
+              ),
+            },
+            {
+              key: 'access',
+              header: t('access.button'),
+              hideOnMobile: true,
+              cell: (u) => <AccessSummary user={u} />,
+            },
+            manageCol,
+          ];
 
   return (
     <>

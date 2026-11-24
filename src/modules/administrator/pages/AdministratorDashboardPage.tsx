@@ -4,7 +4,16 @@ import { FiCalendar, FiGrid, FiUserCheck, FiUserPlus, FiUsers } from 'react-icon
 import { PATHS } from '@/core/config/paths';
 import { timeAgo } from '@/core/utils/format';
 import { useAuthStore } from '@/core/auth/authStore';
-import { Avatar, Badge, EmptyState, ErrorState, Loader, PageHeader, Section, StatCard } from '@/shared/ui';
+import {
+  Avatar,
+  Badge,
+  EmptyState,
+  ErrorState,
+  Loader,
+  PageHeader,
+  Section,
+  StatCard,
+} from '@/shared/ui';
 import { useAdministratorDashboard } from '../api/administratorApi';
 
 /** Главная администратора филиала: кто сегодня занимается, ученики, свободные места */
@@ -18,17 +27,42 @@ export default function AdministratorDashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title={t('administrator.greeting', { name: user?.name.split(' ')[0] ?? '' })} description={t('administrator.dashboardDescription')} />
+      <PageHeader
+        title={t('administrator.greeting', { name: user?.name.split(' ')[0] ?? '' })}
+        description={t('administrator.dashboardDescription')}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label={t('administrator.students')} value={data.studentsCount} icon={<FiUsers />} />
-        <StatCard label={t('administrator.active')} value={data.activeCount} icon={<FiUserCheck />} tone="info" />
-        <StatCard label={t('branch.groups')} value={data.groupsCount} icon={<FiGrid />} tone="amber" />
-        <StatCard label={t('administrator.freeSeats')} value={data.freeSeats} icon={<FiUserPlus />} />
+        <StatCard
+          label={t('administrator.students')}
+          value={data.studentsCount}
+          icon={<FiUsers />}
+        />
+        <StatCard
+          label={t('administrator.active')}
+          value={data.activeCount}
+          icon={<FiUserCheck />}
+          tone="info"
+        />
+        <StatCard
+          label={t('branch.groups')}
+          value={data.groupsCount}
+          icon={<FiGrid />}
+          tone="amber"
+        />
+        <StatCard
+          label={t('administrator.freeSeats')}
+          value={data.freeSeats}
+          icon={<FiUserPlus />}
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Section title={t('administrator.today')} description={t('administrator.todayHint')} bodyClassName="px-0 pb-2">
+        <Section
+          title={t('administrator.today')}
+          description={t('administrator.todayHint')}
+          bodyClassName="px-0 pb-2"
+        >
           {data.today.length === 0 ? (
             <EmptyState icon={<FiCalendar />} title={t('administrator.noLessonsToday')} />
           ) : (
@@ -39,10 +73,14 @@ export default function AdministratorDashboardPage() {
                     <span className="w-24 text-sm font-semibold tabular-nums">{g.time}</span>
                     <div>
                       <p className="font-medium">{g.name}</p>
-                      <p className="text-[13px] text-muted">{g.mentorName ?? t('groups.noMentor')}</p>
+                      <p className="text-[13px] text-muted">
+                        {g.mentorName ?? t('groups.noMentor')}
+                      </p>
                     </div>
                   </div>
-                  <Badge>{t('groups.studentsOf', { count: g.studentsCount, capacity: g.capacity })}</Badge>
+                  <Badge>
+                    {t('groups.studentsOf', { count: g.studentsCount, capacity: g.capacity })}
+                  </Badge>
                 </li>
               ))}
             </ul>
@@ -51,7 +89,14 @@ export default function AdministratorDashboardPage() {
 
         <Section
           title={t('administrator.recent')}
-          action={<Link to={PATHS.administrator.students} className="text-sm font-medium text-brand-strong hover:underline">{t('common.openAll')}</Link>}
+          action={
+            <Link
+              to={PATHS.administrator.students}
+              className="text-sm font-medium text-brand-strong hover:underline"
+            >
+              {t('common.openAll')}
+            </Link>
+          }
           bodyClassName="px-0 pb-2"
         >
           <ul className="divide-y divide-line">
@@ -60,7 +105,9 @@ export default function AdministratorDashboardPage() {
                 <Avatar name={u.name} size={34} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{u.name}</p>
-                  <p className="text-[13px] text-muted">{u.phone} · {u.groupName ?? t('users.noGroup')}</p>
+                  <p className="text-[13px] text-muted">
+                    {u.phone} · {u.groupName ?? t('users.noGroup')}
+                  </p>
                 </div>
                 <span className="text-xs text-muted">{timeAgo(u.createdAt)}</span>
               </li>
@@ -68,7 +115,6 @@ export default function AdministratorDashboardPage() {
           </ul>
         </Section>
       </div>
-
     </div>
   );
 }

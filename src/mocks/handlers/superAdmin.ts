@@ -4,6 +4,7 @@ import { http } from 'msw';
 import { ENDPOINTS } from '@/core/api/endpoints';
 import type { Branch, BranchStatus, CrossRequestStatus, UserListItem } from '@/core/types/models';
 import { branchFinance, networkDaily, pct } from '../finance';
+import { setPassword } from '../passwords';
 import { db, deletePerson, makeContract, stats, updatePerson } from '../db';
 import { ok, fail, url, query, matches } from './utils';
 
@@ -324,6 +325,7 @@ export const superAdminHandlers = [
     };
     db.users.push(u);
     makeContract(u); // договор с ФИО директора создаётся сразу
+    setPassword(u.id, password);
     branch.directorName ??= u.name;
     db.audit.unshift({
       id: `audit_${Date.now()}`,

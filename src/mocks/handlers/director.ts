@@ -1,3 +1,4 @@
+import { DIRECTOR_ASSIGNABLE as STAFF_ASSIGNABLE } from '@/core/auth/access';
 import type { Role } from '@/core/auth/roles';
 import { isStrongPassword, LOGIN_RE, staffEmail } from '@/shared/lib/credentials';
 import { http } from 'msw';
@@ -8,20 +9,13 @@ import { db, getLesson, stats } from '../db';
 import { deletePerson, makeContract, updatePerson } from '../db';
 import { ok, fail, url, query, matches } from './utils';
 import { pct, revenue, monthRevenue } from '../finance';
+import { allLeads } from '../leads';
+import { setPassword } from '../passwords';
 import { branchMetrics, defaultExpenses, monthKey } from '../reports';
 import type { BranchReport } from '@/core/types/models';
 
 // Демо-директор — директор филиала Душанбе
 const BRANCH = 'branch_dushanbe';
-
-// Заявки с сайта / Instagram (демо — настоящие придут из отдела продаж, задача 22)
-const APPLICATIONS = [
-  ['Сайдалиев Акрам', 'Instagram', 35],
-  ['Нозимова Фарангис', 'Сайт', 80],
-  ['Юлдашев Комил', 'Telegram', 190],
-  ['Мирзоева Лола', 'Звонок', 1400],
-  ['Шарипов Далер', 'Сайт', 2900],
-] as const;
 
 const DAY_CODES = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 /** «Вт/Чт/Сб · 16:30–18:30» → идёт ли сегодня и во сколько */
@@ -47,6 +41,7 @@ export const directorHandlers = [
     const cur = revenue(BRANCH, days);
     const prev = revenue(BRANCH, days, days);
     const pending = db.submissions.filter((x) => x.status === 'pending');
+    const newLeads = allLeads().filter((l) => l.branchId === BRANCH && l.status === 'new');
     return ok({
       period: days,
       branchName: db.branches.find((b) => b.id === BRANCH)?.name ?? '',
@@ -54,7 +49,7 @@ export const directorHandlers = [
         students: { value: students.length, delta: 13.8 },
         groups: { value: groups.length, delta: 9.1 },
         mentors: { value: mentors.length, delta: 5.6 },
-        applications: { value: APPLICATIONS.length, delta: 17.2 },
+        applications: { value: newLeads.length, delta: 17.2 },
         revenue: { value: cur, delta: pct(cur, prev) },
       },
       groups,
@@ -72,12 +67,12 @@ export const directorHandlers = [
           };
         })
         .sort((x, y) => y.load - x.load),
-      applications: APPLICATIONS.map(([name, source, min], i) => ({
-        id: `app_${i}`,
-        name,
-        source,
-        course: MAIN_TRACK.title,
-        createdAt: new Date(Date.now() - min * 60000).toISOString(),
+      applications: newLeads.slice(0, 5).map((l) => ({
+        id: l.id,
+        name: l.name,
+        source: l.source,
+        course: l.course,
+        createdAt: l.createdAt,
       })),
       today: groups
         .map((g) => {
@@ -319,7 +314,11 @@ export const directorHandlers = [
       db.users.filter(
         (u) =>
           u.branchId === BRANCH &&
-          (!role || u.role === role) &&
+          // staff — все сотрудники филиала (кроме директора и учеников); учитываем мульти-роли
+          (!role ||
+            (role === 'staff'
+              ? STAFF_ASSIGNABLE.some((r) => u.role === r || u.roles?.includes(r))
+              : u.role === role || u.roles?.includes(role as Role))) &&
           (!groupId || u.groupId === groupId) &&
           matches(u.name + u.email + u.phone, q.get('search')),
       ),
@@ -330,6 +329,8 @@ export const directorHandlers = [
       UserListItem,
       'name' | 'email' | 'phone' | 'role'
     > & { groupId?: string; login?: string; password?: string };
+    if (body.role !== 'student' && !(STAFF_ASSIGNABLE as readonly Role[]).includes(body.role))
+      return fail(403, 'FORBIDDEN', 'Эту должность директор назначить не может');
     // сотрудники — логин @donish.tj и пароль от директора
     if (body.role === 'student') body.email = '';
     else {
@@ -356,7 +357,8 @@ export const directorHandlers = [
       isBlocked: false,
     };
     db.users.unshift(u);
-    makeContract(u); // ментору — договор с его ФИО
+    makeContract(u); // администратору и ментору — договор с его ФИО
+    if (password) setPassword(u.id, password);
     if (group) group.studentsCount++;
     return ok(u);
   }),

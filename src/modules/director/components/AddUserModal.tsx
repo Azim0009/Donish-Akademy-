@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,7 +13,9 @@ import {
   LOGIN_RE,
   loginFromName,
 } from '@/shared/lib/credentials';
-import { useDirectorGroups, useCreateUser } from '../api/directorApi';
+import { useDirectorGroups, useCreateUser, type DirectorUserRole } from '../api/directorApi';
+import { DIRECTOR_ASSIGNABLE } from '@/core/auth/access';
+import type { ContractRole } from '@/core/types/models';
 import { ContractPreview } from '@/shared/components/contracts/ContractPreview';
 import { useInvalidateContracts } from '@/shared/api/contractsApi';
 import { useAuthStore } from '@/core/auth/authStore';
@@ -26,19 +28,22 @@ const schema = z.object({
 type Form = z.infer<typeof schema>;
 
 /**
- * Добавить ментора или ученика в свой филиал. Логин и пароль задаёт директор:
- * ментор входит по логину …@donish.tj, ученик — по номеру телефона.
+ * Добавить сотрудника или ученика в свой филиал. Логин и пароль задаёт директор:
+ * сотрудник входит по логину …@donish.tj, ученик — по номеру телефона.
+ * roleSelectable — показать выбор должности (раздел «Сотрудники»).
  */
 export function AddUserModal({
   open,
   onClose,
-  role,
+  role: initialRole,
   groupId,
+  roleSelectable,
 }: {
   open: boolean;
   onClose: () => void;
-  role: 'mentor' | 'student';
+  role: DirectorUserRole;
   groupId?: string;
+  roleSelectable?: boolean;
 }) {
   const { t } = useTranslation();
   const groups = useDirectorGroups();
@@ -59,7 +64,15 @@ export function AddUserModal({
   const [password, setPassword] = useState(() => generatePassword());
   const [credErrors, setCredErrors] = useState<{ login?: string; password?: string }>({});
   const [created, setCreated] = useState<CreatedCredentials | null>(null);
+  const [role, setRole] = useState<DirectorUserRole>(initialRole);
+  // каждый раз открываем с должностью по умолчанию
+  useEffect(() => {
+    if (open) setRole(initialRole);
+  }, [open, initialRole]);
   const isStudent = role === 'student';
+  // договор есть у администратора и ментора (шаблоны в «Договорах»)
+  const contractRole: ContractRole | null =
+    role === 'administrator' || role === 'mentor' ? role : null;
   const invalidateContracts = useInvalidateContracts();
   const me = useAuthStore((st) => st.user);
   const shownLogin = loginTouched ? login : loginFromName(watch('name') ?? '');
@@ -76,7 +89,7 @@ export function AddUserModal({
       {
         onSuccess: (u) => {
           toast(t('users.created', { name: u.name }), 'success');
-          if (!isStudent) invalidateContracts();
+          if (contractRole) invalidateContracts();
           setCreated({
             name: u.name,
             roleLabel: t(`roles.${role}`),
@@ -95,7 +108,13 @@ export function AddUserModal({
     );
   });
 
-  const title = role === 'mentor' ? t('users.addMentor') : t('users.addStudent');
+  const title = roleSelectable
+    ? t('staffPage.add')
+    : role === 'mentor'
+      ? t('users.addMentor')
+      : role === 'student'
+        ? t('users.addStudent')
+        : t('staffPage.addRole', { role: t(`roles.${role}`) });
   return (
     <>
       <Modal
@@ -115,6 +134,15 @@ export function AddUserModal({
         }
       >
         <form onSubmit={submit} className="flex flex-col gap-4">
+          {roleSelectable && (
+            <Select
+              label={t('staffPage.position')}
+              value={role}
+              onChange={(e) => setRole(e.target.value as DirectorUserRole)}
+              options={DIRECTOR_ASSIGNABLE.map((r) => ({ value: r, label: t(`roles.${r}`) }))}
+              hint={t('staffPage.positionHint')}
+            />
+          )}
           <Input label={t('common.fullName')} {...register('name')} error={err('name')} />
           <Input
             label={t('branch.phone')}
@@ -155,10 +183,10 @@ export function AddUserModal({
               errors={credErrors}
             />
           )}
-          {!isStudent && (
+          {contractRole && (
             <ContractPreview
               scope="director"
-              role="mentor"
+              role={contractRole}
               data={{
                 fullName: watch('name'),
                 firstName: (watch('name') ?? '').trim().split(/\s+/)[0],

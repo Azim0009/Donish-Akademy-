@@ -6,6 +6,7 @@ import {
   FiArrowRight,
   FiSend,
   FiBookOpen,
+  FiBriefcase,
   FiCheckSquare,
   FiChevronDown,
   FiDollarSign,
@@ -28,7 +29,7 @@ import { useDirectorDashboard, type DirectorDashboard } from '../api/directorApi
 import { CreateGroupModal } from '../components/CreateGroupModal';
 import { AddUserModal } from '../components/AddUserModal';
 
-type Create = 'group' | 'mentor' | 'student' | null;
+type Create = 'group' | 'mentor' | 'student' | 'staff' | null;
 
 /** Главная директора — по макету: показатели филиала, группы, менторы, заявки, расписание, проверки */
 export default function DirectorDashboardPage() {
@@ -177,7 +178,7 @@ export default function DirectorDashboardPage() {
         <Section
           className="[@container(min-width:720px)]:col-span-2 [@container(min-width:1150px)]:col-span-1"
           title={t('directorDash.applications')}
-          action={<Badge tone="blue">{t('directorDash.demo')}</Badge>}
+          action={all(PATHS.director.leads, t('directorDash.allLeads'))}
         >
           <ul className="flex flex-col">
             {data.applications.slice(0, 4).map((a) => (
@@ -191,7 +192,7 @@ export default function DirectorDashboardPage() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{a.name}</p>
                   <p className="truncate text-xs text-muted">
-                    {timeAgo(a.createdAt)} · {a.source}
+                    {timeAgo(a.createdAt)} · {t(`leads.src.${a.source}`)}
                   </p>
                 </div>
                 <Badge tone="green">{t('directorDash.new')}</Badge>
@@ -273,6 +274,12 @@ export default function DirectorDashboardPage() {
       <CreateGroupModal open={create === 'group'} onClose={() => setCreate(null)} />
       <AddUserModal open={create === 'mentor'} onClose={() => setCreate(null)} role="mentor" />
       <AddUserModal open={create === 'student'} onClose={() => setCreate(null)} role="student" />
+      <AddUserModal
+        open={create === 'staff'}
+        onClose={() => setCreate(null)}
+        role="administrator"
+        roleSelectable
+      />
     </div>
   );
 }
@@ -383,6 +390,7 @@ function CreateMenu({ onPick }: { onPick: (c: Exclude<Create, null>) => void }) 
     ['group', FiGrid, t('directorDash.qCreateGroup')],
     ['mentor', FiUserCheck, t('users.addMentor')],
     ['student', FiUserPlus, t('users.addStudent')],
+    ['staff', FiBriefcase, t('staffPage.add')],
   ];
   return (
     <div ref={ref} className="relative">

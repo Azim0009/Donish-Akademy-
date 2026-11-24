@@ -18,7 +18,12 @@ export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: ()
   const { t } = useTranslation();
   const mentors = useDirectorUsers({ role: 'mentor' });
   const create = useCreateGroup();
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<Form>({ resolver: zodResolver(schema), defaultValues: { capacity: 16 } });
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<Form>({ resolver: zodResolver(schema), defaultValues: { capacity: 16 } });
   const err = (k: keyof Form) => errors[k]?.message && t(String(errors[k]!.message));
 
   const submit = handleSubmit((v) =>
@@ -39,23 +44,46 @@ export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: ()
       description={MAIN_TRACK.title}
       footer={
         <>
-          <Button variant="secondary" onClick={onClose}>{t('common.cancel')}</Button>
-          <Button onClick={submit} loading={create.isPending}>{t('groups.create')}</Button>
+          <Button variant="secondary" onClick={onClose}>
+            {t('common.cancel')}
+          </Button>
+          <Button onClick={submit} loading={create.isPending}>
+            {t('groups.create')}
+          </Button>
         </>
       }
     >
       <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
-        <Input label={t('groups.name')} placeholder="FS-05" {...register('name')} error={err('name')} />
-        <Input label={t('groups.capacity')} type="number" {...register('capacity')} error={err('capacity')} />
+        <Input
+          label={t('groups.name')}
+          placeholder="FS-05"
+          {...register('name')}
+          error={err('name')}
+        />
+        <Input
+          label={t('groups.capacity')}
+          type="number"
+          {...register('capacity')}
+          error={err('capacity')}
+        />
         <Select
           label={t('groups.mentor')}
           placeholder={t('common.choose')}
           className="sm:col-span-2"
           {...register('mentorId')}
           error={err('mentorId')}
-          options={(mentors.data ?? []).map((m) => ({ value: m.id, label: `${m.name} · ${t('groups.groupsCount', { count: m.groupsCount })}` }))}
+          options={(mentors.data ?? []).map((m) => ({
+            value: m.id,
+            label: `${m.name} · ${t('groups.groupsCount', { count: m.groupsCount })}`,
+          }))}
         />
-        <Input label={t('groups.schedule')} placeholder="Пн/Ср/Пт · 14:00–16:00" className="sm:col-span-2" {...register('schedule')} error={err('schedule')} />
+        <Input
+          label={t('groups.schedule')}
+          placeholder="Пн/Ср/Пт · 14:00–16:00"
+          className="sm:col-span-2"
+          {...register('schedule')}
+          error={err('schedule')}
+        />
       </form>
     </Modal>
   );

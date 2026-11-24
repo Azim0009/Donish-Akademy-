@@ -21,9 +21,11 @@ import type {
   CrossRequest,
   BranchReport,
   Task,
+  Lead,
 } from '@/core/types/models';
 import { initFinance } from './finance';
 import { seedReports } from './reports';
+import { setPassword } from './passwords';
 import type { Role } from '@/core/auth/roles';
 import { MAIN_TRACK } from '@/core/config/course';
 import { detectProvider } from '@/shared/lib/liveSession';
@@ -159,13 +161,22 @@ const translit: Record<string, string> = {
   я: 'ya',
   ь: '',
   ъ: '',
+  // таджикские буквы
+  ғ: 'gh',
+  ӣ: 'i',
+  қ: 'q',
+  ӯ: 'u',
+  ҳ: 'h',
+  ҷ: 'j',
 };
+/** Латиница для логинов и id: только a-z, 0-9 (иначе «UI/UX» даёт id со слэшем и ломает ссылку) */
 const lat = (s: string) =>
   s
     .toLowerCase()
     .split('')
     .map((ch) => translit[ch] ?? ch)
-    .join('');
+    .join('')
+    .replace(/[^a-z0-9]+/g, '');
 
 let userCounter = 0;
 function makePerson() {
@@ -192,6 +203,7 @@ export const db = {
   requests: [] as CrossRequest[],
   reports: [] as BranchReport[],
   tasks: [] as Task[],
+  leads: [] as Lead[],
   audit: [] as AuditLog[],
   notifications: {} as Record<Role, AppNotification[]>,
   settings: {
@@ -241,7 +253,7 @@ function addUser(
 for (const [id, , , status] of branchSeed) if (status !== 'draft') addUser('director', id);
 // Администраторы филиалов (ресепшн)
 for (const [id, , , status] of branchSeed) if (status === 'active') addUser('administrator', id);
-// Сотрудники филиалов: бухгалтер, уборщица, 2 продажника
+// Сотрудники филиалов: бухгалтер, уборщик, 2 продажника
 for (const [id, , , status] of branchSeed)
   if (status === 'active')
     (['accountant', 'cleaner', 'sales', 'sales'] as const).forEach((r) => addUser(r, id));
@@ -986,7 +998,14 @@ export const stats = {
 // ================= ИЗМЕНЕНИЕ / УДАЛЕНИЕ ЛЮДЕЙ =================
 export function updatePerson(
   id: string,
-  body: { firstName?: string; lastName?: string; name?: string; phone?: string; phone2?: string },
+  body: {
+    firstName?: string;
+    lastName?: string;
+    name?: string;
+    phone?: string;
+    phone2?: string;
+    password?: string;
+  },
 ) {
   const u = db.users.find((x) => x.id === id);
   if (!u) return null;
@@ -997,7 +1016,8 @@ export function updatePerson(
     ...(body.phone ? { phone: body.phone } : {}),
     phone2: body.phone2 ?? u.phone2,
   });
-  // пароль в моках не храним — настоящий backend сохранит его хэш
+  // новый пароль (backend сохранит хэш)
+  if (body.password) setPassword(id, body.password);
   return u;
 }
 

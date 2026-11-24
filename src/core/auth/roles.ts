@@ -5,7 +5,7 @@ import { PATHS } from '@/core/config/paths';
  * super_admin — вся сеть; director — директор филиала;
  * administrator — администратор филиала (ресепшн: ученики, оплаты, логины);
  * mentor — преподаватель; student — ученик.
- * Сотрудники филиала: accountant — бухгалтер, cleaner — уборщица, sales — отдел продаж.
+ * Сотрудники филиала: accountant — бухгалтер, cleaner — уборщик / уборщица, sales — отдел продаж.
  */
 export const ROLES = [
   'super_admin',

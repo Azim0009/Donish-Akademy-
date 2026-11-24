@@ -3,6 +3,11 @@ import { api } from '@/core/api/axiosClient';
 import { ENDPOINTS } from '@/core/api/endpoints';
 import type { ApiResponse } from '@/core/api/types';
 import type { Period } from '@/shared/lib/period';
+import type { LeadSource } from '@/core/types/models';
+import type { DirectorAssignable } from '@/core/auth/access';
+
+/** Кого директор добавляет в филиал: сотрудников и учеников */
+export type DirectorUserRole = DirectorAssignable | 'student';
 import type {
   Group,
   Lesson,
@@ -25,7 +30,13 @@ export interface DirectorDashboard {
   >;
   groups: Group[];
   mentorLoad: { id: string; name: string; groups: number; students: number; load: number }[];
-  applications: { id: string; name: string; source: string; course: string; createdAt: string }[];
+  applications: {
+    id: string;
+    name: string;
+    source: LeadSource;
+    course: string;
+    createdAt: string;
+  }[];
   today: {
     groupId: string;
     groupName: string;
@@ -94,7 +105,8 @@ export const useDirectorGroup = (id: string) =>
     queryFn: () => get<{ group: Group; members: UserListItem[] }>(E.group(id)),
   });
 export const useDirectorUsers = (params: {
-  role: 'mentor' | 'student';
+  /** staff — все сотрудники филиала */
+  role: DirectorUserRole | 'staff';
   search?: string;
   groupId?: string;
 }) =>
@@ -145,7 +157,7 @@ export const useCreateUser = () =>
       name: string;
       email?: string;
       phone: string;
-      role: 'mentor' | 'student';
+      role: DirectorUserRole;
       groupId?: string;
       login?: string;
       password?: string;

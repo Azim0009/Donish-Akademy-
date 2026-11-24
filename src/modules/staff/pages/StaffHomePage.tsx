@@ -8,7 +8,7 @@ import type { StaffRole } from '@/core/auth/roles';
 import { MyTasksWidget } from '@/modules/tasks/components/MyTasksWidget';
 
 /**
- * Главная бухгалтера, уборщицы и отдела продаж: филиал, контакты руководства, расписание дня.
+ * Главная бухгалтера, уборщика и отдела продаж: филиал, контакты руководства, расписание дня.
  * Сверху — мои задачи. Свои разделы у ролей появятся в следующих задачах (финансы, заявки).
  */
 export default function StaffHomePage() {

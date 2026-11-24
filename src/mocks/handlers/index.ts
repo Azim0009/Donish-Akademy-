@@ -7,6 +7,7 @@ import { staffHandlers } from './staff';
 import { superAdminHandlers } from './superAdmin';
 import { notificationHandlers } from './notifications';
 import { taskHandlers } from './tasks';
+import { leadHandlers } from './leads';
 
 export const handlers = [
   ...authHandlers,
@@ -18,4 +19,5 @@ export const handlers = [
   ...superAdminHandlers,
   ...notificationHandlers,
   ...taskHandlers,
+  ...leadHandlers,
 ];

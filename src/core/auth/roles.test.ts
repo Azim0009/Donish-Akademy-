@@ -1,7 +1,7 @@
 import { ROLES, ROLE_HOME } from './roles';
 
 describe('roles', () => {
-  it('в MVP ровно 4 роли', () => {
+  it('ролей ровно 8: от SuperAdmin до ученика и сотрудников филиала', () => {
     expect(ROLES).toHaveLength(8);
   });
 

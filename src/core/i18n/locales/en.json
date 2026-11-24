@@ -80,14 +80,16 @@
       "notifications": "Notifications",
       "settings": "Settings",
       "contracts": "Contracts",
-      "tasks": "Tasks"
+      "tasks": "Tasks",
+      "leads": "Leads"
     },
     "student": {
       "dashboard": "Home",
       "tracks": "Tracks",
       "profile": "My profile",
       "lessonEditor": "Practice",
-      "live": "Live lessons"
+      "live": "Live lessons",
+      "scores": "My scores"
     },
     "mentor": {
       "dashboard": "Home",
@@ -104,7 +106,8 @@
       "students": "Students",
       "user": "User profile",
       "statistics": "Statistics",
-      "reports": "Reports"
+      "reports": "Reports",
+      "staff": "Staff"
     },
     "superAdmin": {
       "dashboard": "Overview",
@@ -123,7 +126,8 @@
     },
     "administrator": {
       "dashboard": "Home",
-      "students": "Students"
+      "students": "Students",
+      "payments": "Payments"
     },
     "staff": {
       "home": "Home"
@@ -167,7 +171,17 @@
     "newPassword": "New password",
     "newPasswordSubtitle": "Choose a password you don't use elsewhere",
     "savePassword": "Save password",
-    "passwordChanged": "Password changed"
+    "passwordChanged": "Password changed",
+    "whoAreYou": "Who is signing in",
+    "who": {
+      "staff": "Staff",
+      "student": "Student"
+    },
+    "loginLabel": "Login",
+    "loginHint": "You can omit “@donish.tj”",
+    "phoneLabel": "Phone number",
+    "phoneHint": "Your login is your phone number; the branch administrator gave you the password",
+    "studentForgot": "Forgot your password? Ask the branch administrator — they will send a new one on WhatsApp."
   },
   "authPanel": {
     "title": "Your path into IT — step by step",
@@ -260,7 +274,8 @@
     "preview": "Preview",
     "submit": "Submit for review",
     "submitted": "Solution sent to your mentor",
-    "onReview": "Under review"
+    "onReview": "Under review",
+    "simpleMode": "The code editor didn’t load (weak internet) — simple mode is on. Code and preview still work."
   },
   "profile": {
     "since": "Learning since {{date}}",
@@ -646,7 +661,13 @@
     "noLessonsToday": "No classes today",
     "recent": "New students",
     "studentsDescription": "All students of your branch",
-    "searchStudents": "Name or phone"
+    "searchStudents": "Name or phone",
+    "newPassword": "New password",
+    "newPasswordHint": "New password for {{name}}. The old one will stop working — send the new one on WhatsApp.",
+    "savePassword": "Save password",
+    "fromSales_one": "{{count}} student enrolled through sales — create an account",
+    "fromSales_other": "{{count}} students enrolled through sales — create accounts",
+    "createAccount": "Create account"
   },
   "staff": {
     "greeting": "Hello, {{name}}!",
@@ -889,7 +910,6 @@
     "mentorLoad": "Mentor workload",
     "allMentors": "All mentors",
     "applications": "Student applications",
-    "demo": "demo",
     "new": "New",
     "today": "Today’s schedule",
     "noLessons": "No lessons today",
@@ -910,7 +930,8 @@
     "groupsN_one": "{{count}} group",
     "groupsN_other": "{{count}} groups",
     "works_one": "{{count}} work",
-    "works_other": "{{count}} works"
+    "works_other": "{{count}} works",
+    "allLeads": "All leads"
   },
   "reports": {
     "directorDesc": "Send SuperAdmin a report every month: branch numbers, income and expenses, the month’s results. Numbers fill in automatically.",
@@ -1070,5 +1091,205 @@
     "onlyCreatorCloses": "Only the person who assigned the task can close it",
     "myTasks": "My tasks",
     "noOpen": "No open tasks"
+  },
+  "staffPage": {
+    "description": "All branch staff: administrator, mentors, accountant, cleaner, sales. Add people, change access, block and remove.",
+    "add": "Add staff member",
+    "addRole": "Add: {{role}}",
+    "position": "Position",
+    "positionHint": "Extra roles can be given later with the “Access” button.",
+    "all": "All",
+    "tab": {
+      "administrator": "Administrators",
+      "mentor": "Mentors",
+      "accountant": "Accounting",
+      "cleaner": "Cleaning",
+      "sales": "Sales"
+    }
+  },
+  "leads": {
+    "description": "Requests from Instagram, the website and calls. Follow each one: call → trial lesson → enrolled. When a lead enrolls, the administrator is notified.",
+    "new": "New lead",
+    "add": "Add lead",
+    "created": "Lead “{{name}}” added",
+    "source": "Source",
+    "course": "Course",
+    "comment": "Comment",
+    "commentPh": "What they asked, when to call",
+    "src": {
+      "instagram": "Instagram",
+      "site": "Website",
+      "telegram": "Telegram",
+      "call": "Phone call",
+      "walk_in": "Walk-in",
+      "referral": "Referral"
+    },
+    "st": {
+      "new": "New",
+      "contacted": "Contacted",
+      "trial": "Trial lesson",
+      "won": "Enrolled",
+      "lost": "Lost"
+    },
+    "moved": {
+      "new": "Lead is “New” again",
+      "contacted": "Marked as contacted",
+      "trial": "Booked a trial lesson",
+      "won": "Lead enrolled! The administrator was notified",
+      "lost": "Lead marked as lost"
+    },
+    "next": {
+      "contacted": "Contacted",
+      "trial": "Book a trial lesson",
+      "won": "Enrolled in the course"
+    },
+    "funnel": "Sales funnel",
+    "conversion": "Conversion",
+    "active": "In progress",
+    "all": "All",
+    "search": "Name or phone",
+    "empty": "No leads",
+    "trialsToday_one": "{{count}} trial lesson today",
+    "trialsToday_other": "{{count}} trial lessons today",
+    "newToday_one": "+{{count}} new today",
+    "newToday_other": "+{{count}} new today",
+    "trialToday": "Trial today",
+    "call": "Call",
+    "responsible": "Handled by {{name}}",
+    "noOne": "Nobody has taken it yet",
+    "stage": "Stage",
+    "trialAt": "Trial lesson",
+    "bookTrial": "Book",
+    "lostReason": "Reason",
+    "lostPh": "E.g. too expensive, too far, chose another school",
+    "markLost": "Lost",
+    "wonHint": "The lead enrolled. The administrator will create an account and take the payment.",
+    "history": "History",
+    "noHistory": "Empty for now — call and write down the result.",
+    "writeNote": "What they said, what you agreed…",
+    "logCall": "Log call",
+    "logNote": "Note",
+    "waText": "Hello, {{name}}! This is Donish Academy. You requested the “{{course}}” course. Is now a good time to talk?"
+  },
+  "payments": {
+    "description": "Monthly fee — {{fee}}. Who paid, who owes, taking payments and WhatsApp reminders.",
+    "collected": "Collected",
+    "debt": "Left to collect",
+    "paidCount": "Paid",
+    "debtors": "Owing",
+    "state": {
+      "unpaid": "Not paid",
+      "partial": "Partial",
+      "paid": "Paid",
+      "all": "All"
+    },
+    "noDebtors": "Everyone has paid 🎉",
+    "lastPaid": "paid {{date}}",
+    "accept": "Take payment",
+    "accepted": "Received {{sum}}",
+    "acceptedTitle": "Payment received",
+    "amount": "Amount",
+    "method": "Method",
+    "methods": {
+      "cash": "Cash",
+      "card": "Card",
+      "transfer": "Transfer"
+    },
+    "note": "Comment",
+    "notePh": "E.g. for 2 months",
+    "badAmount": "Enter an amount above 0",
+    "alreadyPaid": "already paid {{sum}} of {{fee}}",
+    "sendReceipt": "Send receipt on WhatsApp",
+    "remind": "Remind on WhatsApp",
+    "receiptText": "Donish Academy\nPayment received ✅\nStudent: {{name}}\nAmount: {{sum}}\nFor: {{month}}\nPaid in total: {{total}} of {{fee}}\nThank you!",
+    "remindText": "Hello, {{name}}! A reminder about the {{month}} payment at Donish Academy: {{sum}} left. You can pay at the branch administrator. Thank you!"
+  },
+  "scores": {
+    "tab": {
+      "journal": "Score journal",
+      "summary": "Month results",
+      "members": "Students"
+    },
+    "month": "Month",
+    "monthN": "Month {{n}}",
+    "monthLocked": "This month hasn't started yet",
+    "weekN": "Week {{n}}",
+    "weekShort": "Wk {{n}}",
+    "lessonsRange": "lessons {{from}}–{{to}}",
+    "lessonN": "Lesson {{n}}",
+    "attHw": "attendance · HW",
+    "attOf": "Attendance, lesson {{n}}",
+    "hwOf": "HW, lesson {{n}}",
+    "hwShort": "HW",
+    "bonus": "Bonus",
+    "exam": "Exam",
+    "total": "Total",
+    "student": "Student",
+    "avgN": "avg {{n}}",
+    "notFilled": "not filled",
+    "now": "now",
+    "ahead": "This week is still ahead",
+    "att": {
+      "present": "Present",
+      "late": "Late",
+      "absent": "Absent"
+    },
+    "rule": {
+      "att": "Attendance: 2 present · 1 late · 0 absent",
+      "hw": "HW: 0–10",
+      "bonus": "Bonus: 0–14",
+      "exam": "Weekly exam: 0–50",
+      "week": "Week: 100 points",
+      "month": "Month result = sum of 4 weeks ÷ 4",
+      "pass": "{{n}}+ — next month",
+      "extra": "{{from}}–{{to}} — extra exam",
+      "fail": "below {{n}} — repeat the month"
+    },
+    "autosave": "Scores save automatically. “WhatsApp” sends the week's scores to the student.",
+    "saved": "saved",
+    "saveError": "Scores were not saved — check your connection",
+    "saveErrorShort": "not saved",
+    "groupPace": "Group average pace",
+    "passCount": "Moving on (80+)",
+    "extraCount": "Extra exam (75–79)",
+    "failCount": "Repeat month",
+    "result": "Result",
+    "pace": "Pace",
+    "status": "Status",
+    "statusName": {
+      "progress": "Month in progress · {{n}}/4 wks",
+      "pass": "Moves on",
+      "passedExtra": "Passed extra exam",
+      "extra": "Extra exam",
+      "fail": "Repeat month"
+    },
+    "passed": "Passed",
+    "failed": "Failed",
+    "reset": "Reset",
+    "extraPassedToast": "Extra exam passed — the student moves on",
+    "extraFailedToast": "Marked: repeat the month",
+    "paceHint": "“Pace” is the average of the filled weeks. The month result appears once all 4 weeks are filled.",
+    "noStudents": "No students in this group yet",
+    "waWeek": "Hello, {{name}}! Donish Academy, group {{group}}.\nScores for week {{week}} of month {{month}}: {{total}} out of 100.\nAttendance {{att}}/6 · HW {{hw}}/30 · Bonus {{bonus}}/14 · Exam {{exam}}/50.\nCurrent month average: {{pace}}. You need 80 to move to the next month.",
+    "my": {
+      "description": "Group {{group}} · mentor {{mentor}}",
+      "monthResult": "Month result",
+      "paceNow": "Current average",
+      "nowWeek": "now week {{w}} of month {{m}}",
+      "toPass": "{{n}} short of {{pass}} — push on homework and the weekly exam",
+      "keepGoing": "Keep it up! You need {{n}}+ to move on",
+      "noData": "No scores yet — your mentor adds them after lessons",
+      "attendance": "Attendance",
+      "homework": "Homework",
+      "hint": {
+        "pass": "Great! You're moving to the next month",
+        "passedExtra": "Extra exam passed — you're moving to the next month",
+        "extra": "Result 75–79: take the extra exam with your mentor",
+        "fail": "Result below 75 — the month must be repeated",
+        "progress": "The month is still in progress"
+      }
+    },
+    "inProgress": "in progress",
+    "completeHint": "Week completed (exam scored)"
   }
 }

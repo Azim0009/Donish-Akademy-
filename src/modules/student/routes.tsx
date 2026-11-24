@@ -10,6 +10,7 @@ const StudentDashboardPage = lazy(() => import('./pages/StudentDashboardPage'));
 const TracksCatalogPage = lazy(() => import('./pages/TracksCatalogPage'));
 const TrackDetailPage = lazy(() => import('./pages/TrackDetailPage'));
 const StudentLivePage = lazy(() => import('./pages/StudentLivePage'));
+const MyScoresPage = lazy(() => import('./pages/MyScoresPage'));
 const LessonPage = lazy(() => import('./pages/LessonPage'));
 const LessonEditorPage = lazy(() => import('./pages/LessonEditorPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
@@ -28,6 +29,7 @@ export const studentRoutes: RouteObject = {
     { path: PATHS.student.tracks, element: <TracksCatalogPage /> },
     { path: PATHS.student.track, element: <TrackDetailPage /> },
     { path: PATHS.student.live, element: <StudentLivePage /> },
+    { path: PATHS.student.scores, element: <MyScoresPage /> },
     { path: PATHS.student.lesson, element: <LessonPage /> },
     { path: PATHS.student.lessonEditor, element: <LessonEditorPage /> },
     { path: PATHS.student.profile, element: <ProfilePage /> },

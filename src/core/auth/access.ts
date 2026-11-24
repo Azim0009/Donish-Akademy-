@@ -22,13 +22,14 @@ export const ASSIGNABLE_ROLES: Role[] = [
   'sales',
 ];
 /** Директор раздаёт роли только внутри филиала — роль директора даёт лишь SuperAdmin */
-export const DIRECTOR_ASSIGNABLE: Role[] = [
+export const DIRECTOR_ASSIGNABLE = [
   'administrator',
   'mentor',
   'accountant',
   'cleaner',
   'sales',
-];
+] as const satisfies readonly Role[];
+export type DirectorAssignable = (typeof DIRECTOR_ASSIGNABLE)[number];
 
 export function userRoles(u: AccessUser): Role[] {
   const extra = (u.roles ?? []).filter((r) => r !== u.role);

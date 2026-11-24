@@ -17,6 +17,8 @@ const MentorsDirectorPage = lazy(() => import('./pages/MentorsDirectorPage'));
 const StudentsDirectorPage = lazy(() => import('./pages/StudentsDirectorPage'));
 const UserDetailDirectorPage = lazy(() => import('./pages/UserDetailDirectorPage'));
 const ContractsDirectorPage = lazy(() => import('./pages/ContractsDirectorPage'));
+const LeadsPage = lazy(() => import('@/modules/leads/pages/LeadsPage'));
+const StaffDirectorPage = lazy(() => import('./pages/StaffDirectorPage'));
 const ReportsDirectorPage = lazy(() => import('./pages/ReportsDirectorPage'));
 const ReportEditDirectorPage = lazy(() => import('./pages/ReportEditDirectorPage'));
 const BranchStatisticsPage = lazy(() => import('./pages/BranchStatisticsPage'));
@@ -48,6 +50,8 @@ export const directorRoutes: RouteObject = {
     { path: PATHS.director.students, element: <StudentsDirectorPage /> },
     { path: PATHS.director.user, element: <UserDetailDirectorPage /> },
     { path: PATHS.director.contracts, element: <ContractsDirectorPage /> },
+    { path: PATHS.director.staff, element: <StaffDirectorPage /> },
+    { path: PATHS.director.leads, element: <LeadsPage /> },
     { path: PATHS.director.reports, element: <ReportsDirectorPage /> },
     { path: PATHS.director.report, element: <ReportEditDirectorPage /> },
     { path: PATHS.director.statistics, element: <BranchStatisticsPage /> },

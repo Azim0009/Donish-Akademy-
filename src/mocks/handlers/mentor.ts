@@ -1,8 +1,10 @@
 import { http } from 'msw';
 import { ENDPOINTS } from '@/core/api/endpoints';
-import type { LiveSessionInput } from '@/core/types/models';
+import type { LiveSessionInput, WeekScore } from '@/core/types/models';
+import { MONTHS, SCORE_KEYS, WEEKS, clampScore, monthResult } from '@/shared/lib/scoring';
 import { detectProvider, isValidHttpsUrl } from '@/shared/lib/liveSession';
 import { courseLessons, db, findLesson } from '../db';
+import { coursePosition, groupScores, saveWeek, setExtra, studentScores } from '../scores';
 import { ok, fail, url, query, matches } from './utils';
 
 // Демо-ментор = первый ментор Душанбе (у него группы FS-01 и FS-04) + FS-02
@@ -49,6 +51,65 @@ export const mentorHandlers = [
     return group
       ? ok({ group, members: membersOf(group.id) })
       : fail(404, 'ENTITY_NOT_FOUND', 'Группа не найдена');
+  }),
+  // --- Журнал баллов (как в CRM Donish) ---
+  http.get(url('/mentor/groups/:id/scores'), ({ params, request }) => {
+    const group = db.groups.find((g) => g.id === params.id);
+    if (!group) return fail(404, 'ENTITY_NOT_FOUND', 'Группа не найдена');
+    const pos = coursePosition(group);
+    const month = Number(query(request).get('month')) || pos.currentMonth;
+    if (month < 1 || month > pos.currentMonth)
+      return fail(400, 'VALIDATION_ERROR', 'Этот месяц ещё не начался');
+    const students = db.users
+      .filter((u) => u.role === 'student' && u.groupId === group.id)
+      .map((u) => ({ id: u.id, name: u.name, phone: u.phone, isBlocked: u.isBlocked }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+    return ok({
+      group: {
+        id: group.id,
+        name: group.name,
+        trackTitle: group.trackTitle,
+        schedule: group.schedule,
+      },
+      month,
+      ...pos,
+      students,
+      ...groupScores(group.id, month),
+    });
+  }),
+  http.put(url(ENDPOINTS.mentor.scores), async ({ request }) => {
+    const b = (await request.json()) as Partial<WeekScore>;
+    const u = db.users.find((x) => x.id === b.studentId && x.role === 'student');
+    const group = u && db.groups.find((g) => g.id === u.groupId);
+    if (!u || !group) return fail(404, 'ENTITY_NOT_FOUND', 'Ученик не найден');
+    const month = Number(b.month);
+    const week = Number(b.week);
+    const pos = coursePosition(group);
+    if (
+      !(month >= 1 && month <= Math.min(MONTHS, pos.currentMonth)) ||
+      !(week >= 1 && week <= WEEKS)
+    )
+      return fail(400, 'VALIDATION_ERROR', 'Неверный месяц или неделя');
+    const row = { studentId: u.id, month, week } as WeekScore;
+    SCORE_KEYS.forEach((k) => {
+      row[k] = clampScore(k, b[k]);
+    });
+    return ok(saveWeek(row));
+  }),
+  http.put(url(ENDPOINTS.mentor.extraExam), async ({ request }) => {
+    const b = (await request.json()) as {
+      studentId?: string;
+      month?: number;
+      passed?: boolean | null;
+    };
+    const u = db.users.find((x) => x.id === b.studentId && x.role === 'student');
+    if (!u || !u.groupId) return fail(404, 'ENTITY_NOT_FOUND', 'Ученик не найден');
+    const month = Number(b.month);
+    const r = monthResult(studentScores(u.id, u.groupId, month).weeks);
+    if (b.passed !== null && (!r.done || r.status !== 'extra'))
+      return fail(400, 'VALIDATION_ERROR', 'Доп. экзамен только для итога 75–79');
+    setExtra(u.id, month, b.passed ?? null);
+    return ok({ studentId: u.id, month, passed: b.passed ?? null });
   }),
   http.get(url('/mentor/students/:id'), ({ params }) => {
     const u = db.users.find((x) => x.id === params.id);

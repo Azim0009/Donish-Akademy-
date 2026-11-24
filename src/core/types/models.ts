@@ -443,3 +443,120 @@ export interface TaskAssignee {
   role: Role;
   branchName: string | null;
 }
+
+// ---------- Лиды отдела продаж ----------
+export type LeadStatus = 'new' | 'contacted' | 'trial' | 'won' | 'lost';
+export type LeadSource = 'instagram' | 'site' | 'telegram' | 'call' | 'walk_in' | 'referral';
+export interface LeadNote {
+  id: ID;
+  authorName: string;
+  /** call — звонок, note — заметка, status — смена статуса (пишется автоматически) */
+  kind: 'call' | 'note' | 'status';
+  text: string;
+  createdAt: string;
+}
+export interface Lead {
+  id: ID;
+  name: string;
+  phone: string;
+  source: LeadSource;
+  course: string;
+  status: LeadStatus;
+  /** когда пробный урок: ISO-время */
+  trialAt: string | null;
+  lostReason: string | null;
+  assignedToId: ID | null;
+  assignedToName: string | null;
+  branchId: ID;
+  branchName: string;
+  /** когда администратор создал ученику аккаунт */
+  studentId?: ID | null;
+  notes: LeadNote[];
+  createdAt: string;
+  updatedAt: string;
+}
+export interface LeadStats {
+  byStatus: Record<LeadStatus, number>;
+  bySource: Record<LeadSource, number>;
+  /** % лидов, которые записались (won) от всех закрытых и открытых за период */
+  conversion: number;
+  newToday: number;
+  trialsToday: number;
+}
+
+// ---------- Оплаты учеников (администратор) ----------
+export type PaymentMethod = 'cash' | 'card' | 'transfer';
+export interface Payment {
+  id: ID;
+  studentId: ID;
+  studentName: string;
+  /** за какой месяц: «2026-11» */
+  month: string;
+  amount: number;
+  method: PaymentMethod;
+  note: string;
+  receivedByName: string;
+  createdAt: string;
+}
+export type PaymentState = 'paid' | 'partial' | 'unpaid';
+export interface PaymentRow {
+  studentId: ID;
+  name: string;
+  phone: string;
+  groupName: string | null;
+  paid: number;
+  state: PaymentState;
+  payments: Payment[];
+}
+export interface PaymentsMonth {
+  month: string;
+  fee: number;
+  rows: PaymentRow[];
+  collected: number;
+  expected: number;
+}
+
+// ---------- Баллы (как в CRM Donish) ----------
+/** Баллы ученика за неделю (3 урока). a — посещение 0/1/2, h — ДЗ 0–10, bonus 0–14, exam 0–50 */
+export interface WeekScore {
+  studentId: ID;
+  month: number;
+  week: number;
+  a1: number | null;
+  a2: number | null;
+  a3: number | null;
+  h1: number | null;
+  h2: number | null;
+  h3: number | null;
+  bonus: number | null;
+  exam: number | null;
+  updatedAt?: string;
+}
+export interface ExtraExam {
+  studentId: ID;
+  month: number;
+  passed: boolean;
+}
+export interface ScoreStudent {
+  id: ID;
+  name: string;
+  phone: string;
+  isBlocked: boolean;
+}
+export interface GroupScores {
+  group: { id: ID; name: string; trackTitle: string; schedule: string };
+  month: number;
+  /** Текущий месяц курса группы (1–3) и неделя (1–4) */
+  currentMonth: number;
+  currentWeek: number;
+  students: ScoreStudent[];
+  weeks: WeekScore[];
+  extra: ExtraExam[];
+}
+export interface MyScores {
+  groupName: string;
+  mentorName: string | null;
+  currentMonth: number;
+  currentWeek: number;
+  months: { month: number; weeks: (WeekScore | null)[]; extra: ExtraExam | null }[];
+}

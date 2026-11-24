@@ -9,8 +9,9 @@ const password = z
 
 const email = z.string().min(1, 'validation.required').email('validation.email');
 
+/** login — логин сотрудника (name или name@donish.tj) или телефон ученика */
 export const loginSchema = z.object({
-  email,
+  login: z.string().trim().min(1, 'validation.required'),
   password: z.string().min(1, 'validation.required'),
 });
 

@@ -23,6 +23,7 @@ export const ENDPOINTS = {
   liveSessions: { my: '/live-sessions/me' },
   progress: {
     me: '/progress/me',
+    scores: '/progress/scores',
     completeLesson: (id: string) => `/progress/lesson/${id}/complete`,
   },
   // --- Mentor ---
@@ -37,6 +38,9 @@ export const ENDPOINTS = {
     liveSessions: '/mentor/live-sessions',
     liveSession: (id: string) => `/mentor/live-sessions/${id}`,
     courseLessons: '/mentor/course-lessons',
+    groupScores: (id: string) => `/mentor/groups/${id}/scores`,
+    scores: '/mentor/scores',
+    extraExam: '/mentor/extra-exam',
   },
   // --- Director (только свой филиал) ---
   director: {
@@ -64,8 +68,11 @@ export const ENDPOINTS = {
   administrator: {
     dashboard: '/administrator/dashboard',
     students: '/administrator/students',
+    studentPassword: (id: string) => `/administrator/students/${id}/password`,
+    wonLeads: '/administrator/won-leads',
+    payments: '/administrator/payments',
   },
-  // --- Сотрудники филиала (бухгалтер, уборщица, продажи) ---
+  // --- Сотрудники филиала (бухгалтер, уборщик, продажи) ---
   staff: { home: '/staff/home' },
   // --- SuperAdmin (все филиалы) ---
   superAdmin: {
@@ -92,6 +99,12 @@ export const ENDPOINTS = {
     reports: '/superadmin/reports',
     report: (id: string) => `/superadmin/reports/${id}`,
     reportReview: (id: string) => `/superadmin/reports/${id}/review`,
+  },
+  leads: {
+    list: '/leads',
+    one: (id: string) => `/leads/${id}`,
+    notes: (id: string) => `/leads/${id}/notes`,
+    stats: '/leads/stats',
   },
   tasks: {
     list: '/tasks',

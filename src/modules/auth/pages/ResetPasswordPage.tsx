@@ -19,16 +19,37 @@ export default function ResetPasswordPage() {
       navigate(PATHS.login);
     },
   });
-  const { register, handleSubmit, formState: { errors } } = useForm<ResetPasswordForm>({ resolver: zodResolver(resetPasswordSchema) });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ResetPasswordForm>({ resolver: zodResolver(resetPasswordSchema) });
 
   return (
     <div>
       <h1 className="h-display text-[28px]">{t('auth.newPassword')}</h1>
       <p className="mt-1 text-muted">{t('auth.newPasswordSubtitle')}</p>
-      <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="mt-8 flex flex-col gap-4" noValidate>
-        <Input label={t('auth.password')} type="password" hint={t('auth.passwordHint')} {...register('password')} error={errors.password && t(errors.password.message!)} />
-        <Input label={t('auth.confirmPassword')} type="password" {...register('confirmPassword')} error={errors.confirmPassword && t(errors.confirmPassword.message!)} />
-        <Button type="submit" size="lg" loading={mutation.isPending}>{t('auth.savePassword')}</Button>
+      <form
+        onSubmit={handleSubmit((d) => mutation.mutate(d))}
+        className="mt-8 flex flex-col gap-4"
+        noValidate
+      >
+        <Input
+          label={t('auth.password')}
+          type="password"
+          hint={t('auth.passwordHint')}
+          {...register('password')}
+          error={errors.password && t(errors.password.message!)}
+        />
+        <Input
+          label={t('auth.confirmPassword')}
+          type="password"
+          {...register('confirmPassword')}
+          error={errors.confirmPassword && t(errors.confirmPassword.message!)}
+        />
+        <Button type="submit" size="lg" loading={mutation.isPending}>
+          {t('auth.savePassword')}
+        </Button>
       </form>
     </div>
   );

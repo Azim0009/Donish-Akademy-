@@ -1,8 +1,12 @@
 import {
+  FiAward,
   FiBarChart2,
   FiBell,
   FiDollarSign,
   FiInbox,
+  FiCreditCard,
+  FiPhoneCall,
+  FiBriefcase,
   FiSend,
   FiList,
   FiBookOpen,
@@ -161,6 +165,18 @@ export const MENUS: Record<Role, MenuItem[]> = {
       section: 'director.students',
     },
     {
+      to: PATHS.director.staff,
+      labelKey: 'pages.director.staff',
+      icon: FiBriefcase,
+      section: 'director.staff',
+    },
+    {
+      to: PATHS.director.leads,
+      labelKey: 'pages.common.leads',
+      icon: FiPhoneCall,
+      section: 'director.leads',
+    },
+    {
       to: PATHS.director.reports,
       labelKey: 'pages.director.reports',
       icon: FiSend,
@@ -199,6 +215,18 @@ export const MENUS: Record<Role, MenuItem[]> = {
       labelKey: 'pages.administrator.students',
       icon: FiUsers,
       section: 'administrator.students',
+    },
+    {
+      to: PATHS.administrator.payments,
+      labelKey: 'pages.administrator.payments',
+      icon: FiCreditCard,
+      section: 'administrator.payments',
+    },
+    {
+      to: PATHS.administrator.leads,
+      labelKey: 'pages.common.leads',
+      icon: FiPhoneCall,
+      section: 'administrator.leads',
     },
     {
       to: PATHS.administrator.tasks,
@@ -250,6 +278,12 @@ export const MENUS: Record<Role, MenuItem[]> = {
       labelKey: 'pages.student.live',
       icon: FiVideo,
       section: 'student.live',
+    },
+    {
+      to: PATHS.student.scores,
+      labelKey: 'pages.student.scores',
+      icon: FiAward,
+      section: 'student.scores',
     },
     {
       to: PATHS.student.tracks,
@@ -304,6 +338,12 @@ export const MENUS: Record<Role, MenuItem[]> = {
       icon: FiHome,
       end: true,
       section: 'sales.home',
+    },
+    {
+      to: PATHS.sales.leads,
+      labelKey: 'pages.common.leads',
+      icon: FiPhoneCall,
+      section: 'sales.leads',
     },
     {
       to: PATHS.sales.tasks,
