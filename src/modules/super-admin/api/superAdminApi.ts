@@ -11,6 +11,7 @@ import type {
   CrossRequestStatus,
   Track,
   UserListItem,
+  Partner,
 } from '@/core/types/models';
 
 const E = ENDPOINTS.superAdmin;
@@ -233,4 +234,18 @@ export const useSetRequestStatus = () =>
 export const useToggleTrack = () =>
   useSuperMutation(({ id, isActive }: { id: string; isActive: boolean }) =>
     api.patch<ApiResponse<Track>>(E.track(id), { isActive }).then((r) => r.data.data),
+  );
+
+// --- Партнёры-преподаватели ---
+export type PartnerRow = Partner & { monthlyIncome: number };
+export const usePartners = () =>
+  useQuery({ queryKey: ['super-admin', 'partners'], queryFn: () => get<PartnerRow[]>(E.partners) });
+export const useCreatePartner = () =>
+  useSuperMutation(
+    (b: { name: string; phone: string; specialty: string; code: string; sharePercent: number; login: string; password: string }) =>
+      api.post<ApiResponse<Partner>>(E.partners, b).then((r) => r.data.data),
+  );
+export const useUpdatePartner = () =>
+  useSuperMutation(({ id, ...b }: { id: string; isActive?: boolean; sharePercent?: number }) =>
+    api.patch<ApiResponse<Partner>>(E.partner(id), b).then((r) => r.data.data),
   );

@@ -51,7 +51,8 @@
     "administrator": "Administrator",
     "accountant": "Accountant",
     "cleaner": "Cleaner",
-    "sales": "Sales"
+    "sales": "Sales",
+    "partner": "Partner teacher"
   },
   "panels": {
     "superAdmin": "Network management",
@@ -61,7 +62,8 @@
     "administrator": "Branch administrator",
     "accountant": "Branch accounting",
     "cleaner": "Branch staff",
-    "sales": "Sales department"
+    "sales": "Sales department",
+    "partner": "Partner workspace"
   },
   "layout": {
     "allBranches": "All branches",
@@ -122,7 +124,8 @@
       "courses": "Courses",
       "requests": "Requests",
       "finance": "Finance",
-      "reports": "Reports"
+      "reports": "Reports",
+      "partners": "Partners"
     },
     "administrator": {
       "dashboard": "Home",
@@ -131,6 +134,11 @@
     },
     "staff": {
       "home": "Home"
+    },
+    "partner": {
+      "dashboard": "Home",
+      "courses": "My courses",
+      "students": "Students"
     }
   },
   "validation": {
@@ -406,7 +414,21 @@
     "groupName": "Group {{name}}",
     "started": "started {{date}}",
     "members": "Group students",
-    "studentsOf": "{{count}} of {{capacity}} students"
+    "studentsOf": "{{count}} of {{capacity}} students",
+    "format": {
+      "online": "Online",
+      "offline": "Offline"
+    },
+    "formatLabel": "Format",
+    "formatHint": {
+      "online": "Lessons via video call",
+      "offline": "Classes in the branch classroom"
+    },
+    "room": "Room and address",
+    "roomPlaceholder": "Room 3 · 45 Rudaki Ave",
+    "roomRequired": "Enter the room or address",
+    "changeFormat": "Change format",
+    "formatSaved": "Group format saved"
   },
   "users": {
     "addMentor": "Add mentor",
@@ -466,7 +488,32 @@
     "noStudentsYet": "No students in this branch yet",
     "noDirectorHint": "Assign a director so they can create groups and add people",
     "branchAudit": "Branch history",
-    "noAudit": "No actions yet"
+    "noAudit": "No actions yet",
+    "partners": {
+      "description": "External teachers with their own courses and link. They get a share of their students’ payments.",
+      "create": "Add partner",
+      "createHint": "The partner gets a login, their own /p/… link and a workspace for courses.",
+      "partner": "Partner",
+      "link": "Link",
+      "courses": "Courses",
+      "students": "Students",
+      "income": "Partner income / mo",
+      "active": "Access",
+      "on": "Active",
+      "off": "Disabled",
+      "enabled": "{{name}} is active again",
+      "disabled": "{{name}} disabled — link and login closed",
+      "empty": "No partners yet",
+      "specialty": "Specialty",
+      "code": "Link code",
+      "codeError": "Latin letters, digits and “-”, 3–30 characters",
+      "share": "Partner share, %",
+      "shareHint": "Of their students’ payments, 5 to 70%",
+      "shareError": "5 to 70%",
+      "nameError": "Enter first and last name",
+      "phone": "Phone",
+      "created": "Partner {{name}} added"
+    }
   },
   "branch": {
     "branch": "Branch",
@@ -652,7 +699,25 @@
     "needRecordings_other": "{{count}} without a recording — add them so students can rewatch",
     "allRecorded": "All past lessons have a recording",
     "noPast": "No past lessons yet",
-    "recorded": "Recorded"
+    "recorded": "Recorded",
+    "provider": "Where the lesson takes place",
+    "otherLink": "Other link",
+    "wrongProvider": "This is not a {{name}} link. Choose another service or paste a {{name}} link.",
+    "openProvider": "Open {{name}}",
+    "providerSteps": {
+      "google_meet": "Create a meeting in Google Meet (meet.new), copy the meet.google.com/… link and paste it below.",
+      "zoom": "Schedule a Zoom meeting, copy the invite link (zoom.us/j/…) and paste it below.",
+      "telegram": "Start a video chat in your Telegram group, tap “Invite” → “Copy link” (t.me/…?videochat) and paste it below.",
+      "other": "Any service with an https:// link — e.g. Jitsi Meet (meet.jit.si), free and without sign-up."
+    },
+    "studentTip": {
+      "google_meet": "Lesson in Google Meet: opens in the browser, on a phone — in the Meet app.",
+      "zoom": "Lesson in Zoom: install the Zoom app in advance.",
+      "telegram": "Lesson in Telegram: the video chat opens in the Telegram app.",
+      "other": "The lesson opens via the link in your browser."
+    },
+    "offlineTitle": "Group {{group}} studies offline",
+    "offlineHint": "No video calls — come to the classroom on schedule. Recordings and lesson materials are in “Tracks”."
   },
   "administrator": {
     "greeting": "Hello, {{name}}!",
@@ -1295,5 +1360,135 @@
     },
     "inProgress": "in progress",
     "completeHint": "Week completed (exam scored)"
+  },
+  "partner": {
+    "hello": "Hello, {{name}}!",
+    "dashboardHint": "{{specialty}} · your share of student payments — {{share}}%",
+    "yourLink": "Your link for students",
+    "yourLinkHint": "Anyone who opens it sees your courses and can sign up. Applications arrive here.",
+    "copy": "Copy",
+    "open": "Open",
+    "linkCopied": "Link copied",
+    "shareText": "Hi! I am {{name}}, I teach at Donish Academy. My courses and sign-up: {{link}}",
+    "shareShort": "{{name}} — courses at Donish Academy",
+    "clicks": "Link visits",
+    "applications": "Applications",
+    "enrolled": "Studying",
+    "income": "Your income / mo",
+    "recent": "New applications",
+    "allStudents": "All students →",
+    "noApplications": "No applications yet",
+    "noApplicationsHint": "Share your link in WhatsApp or Telegram — applications will appear here.",
+    "coursesHint": "Published courses are shown on your page via your link.",
+    "noCourses": "No courses yet",
+    "noCoursesHint": "Create your first course and publish it.",
+    "studentsHint": "Applications and students who came via your link.",
+    "courseCol": "Course",
+    "dateCol": "Date",
+    "statusCol": "Status",
+    "enroll": "Enroll",
+    "reject": "Reject",
+    "restore": "Restore",
+    "status": {
+      "new": "New application",
+      "enrolled": "Studying",
+      "rejected": "Rejected"
+    },
+    "statusToast": {
+      "new": "{{name}}’s application restored",
+      "enrolled": "{{name}} enrolled in the course",
+      "rejected": "{{name}}’s application rejected"
+    },
+    "waText": "Hello, {{name}}! This is about your application to “{{course}}” at Donish Academy.",
+    "level": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "course": {
+      "new": "New course",
+      "newHint": "The course is saved as a draft — publish it when ready.",
+      "edit": "Edit course",
+      "title": "Title",
+      "description": "Description",
+      "level": "Level",
+      "price": "Price per month, TJS",
+      "duration": "Duration, months",
+      "lessons": "Lessons",
+      "priceShort": "Price / mo",
+      "durationShort": "Duration · lessons",
+      "months_one": "{{count}} month",
+      "months_other": "{{count}} months",
+      "titleError": "At least 3 characters",
+      "descriptionError": "At least 10 characters",
+      "priceError": "50 to 10,000 TJS",
+      "durationError": "1 to 12 months",
+      "lessonsError": "1 to 200 lessons",
+      "created": "Course created — it is a draft for now",
+      "updated": "Course saved",
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "published": "Course published — visible via your link",
+      "unpublished": "Course unpublished",
+      "deleted": "Course deleted",
+      "status": {
+        "draft": "Draft",
+        "published": "Published"
+      }
+    }
+  },
+  "partnerPage": {
+    "badge": "Donish Academy partner teacher",
+    "courses": "Courses",
+    "noCourses": "Courses coming soon",
+    "lessons_one": "{{count}} lesson",
+    "lessons_other": "{{count}} lessons",
+    "month": "mo",
+    "signUp": "Sign up",
+    "formTitle": "Course sign-up",
+    "formHint": "Leave your name and phone — the teacher will call or message you on WhatsApp.",
+    "name": "Full name",
+    "phone": "Phone",
+    "course": "Course",
+    "send": "Send application",
+    "doneTitle": "Application sent!",
+    "doneText": "{{name}} will contact you soon.",
+    "notFound": "Page not found",
+    "notFoundHint": "The link is wrong or the teacher no longer accepts students.",
+    "toHome": "Go home"
+  },
+  "ai": {
+    "mentorTitle": "AI mentor",
+    "on": "On",
+    "off": "Off",
+    "mentorHint": "Answers students’ lesson questions 24/7. You see what they ask.",
+    "weekStats_one": "This week: {{count}} question from {{students}} students",
+    "weekStats_other": "This week: {{count}} questions from {{students}} students",
+    "enable": "Enable for the group",
+    "enableHint": "Students will see the “AI mentor” button",
+    "hintsOnly": "Hints only",
+    "hintsOnlyHint": "Explains and guides, but never writes the solution",
+    "enabledToast": "AI mentor enabled for the group",
+    "disabledToast": "AI mentor disabled — students no longer see it",
+    "hintsOnToast": "Hints-only mode on",
+    "hintsOffToast": "AI may show code examples",
+    "recentQuestions": "What students ask",
+    "button": "AI mentor",
+    "modeHints": "Hints mode — no ready solutions",
+    "modeFull": "Explains and shows examples",
+    "yourMentor": "your mentor",
+    "welcome": "Hi! I am the group’s AI assistant. Ask about the lesson, your code or an error — I’ll help. Mentor {{mentor}} sees the questions to help in class.",
+    "lessonContext": "The question will be about this lesson",
+    "thinking": "Thinking…",
+    "placeholder": "Your question…",
+    "send": "Send",
+    "left_one": "{{count}} question left today",
+    "left_other": "{{count}} questions left today",
+    "disclaimer": "AI can be wrong — ask your mentor tough questions.",
+    "quick": {
+      "flex": "Why doesn’t flex put blocks in a row?",
+      "error": "What does a null error in the console mean?",
+      "margin": "What is the difference between margin and padding?"
+    }
   }
 }

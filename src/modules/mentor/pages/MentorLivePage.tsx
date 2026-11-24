@@ -19,7 +19,9 @@ export default function MentorLivePage() {
   const { t } = useTranslation();
   const now = useNow();
   const sessions = useMentorLiveSessions();
-  const groups = useMentorGroups();
+  const allGroups = useMentorGroups();
+  // онлайн-уроки только у онлайн-групп; офлайн-группы занимаются в кабинете
+  const groups = { ...allGroups, data: allGroups.data?.filter((g) => g.format === 'online') };
   const remove = useDeleteLiveSession();
   const [modal, setModal] = useState<LiveModalMode | null>(null);
   const [groupFilter, setGroupFilter] = useState('all');

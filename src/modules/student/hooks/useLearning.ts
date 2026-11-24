@@ -30,6 +30,8 @@ export const useLesson = (id: string) =>
 export const useProgress = () =>
   useQuery({ queryKey: learningKeys.progress, queryFn: learningApi.getProgress });
 /** Баллы ученика по неделям и месяцам (журнал ментора) */
+/** Группа ученика: онлайн или офлайн */
+export const useMyGroup = () => useQuery({ queryKey: ['learning', 'group'], queryFn: learningApi.getMyGroup, staleTime: 5 * 60_000 });
 export const useMyScores = () =>
   useQuery({ queryKey: ['learning', 'scores'], queryFn: learningApi.getMyScores });
 

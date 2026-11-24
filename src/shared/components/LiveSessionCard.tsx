@@ -6,7 +6,8 @@ import { FiCalendar, FiClock, FiExternalLink, FiUser, FiVideo } from 'react-icon
 import type { LiveSession } from '@/core/types/models';
 import { formatDate } from '@/core/utils/format';
 import { Badge, Button } from '@/shared/ui';
-import { canJoin, PROVIDER_LABEL, sessionState, sessionTone, timeRange } from '@/shared/lib/liveSession';
+import { canJoin, pickOf, PROVIDER_LABEL, sessionState, sessionTone, timeRange } from '@/shared/lib/liveSession';
+import { ProviderIcon } from '@/shared/components/live/ProviderIcon';
 import { useNow } from '@/shared/hooks/useNow';
 
 /** Через сколько начнётся: «через 10 мин», «через 2 ч», «через 3 дн.» */
@@ -47,7 +48,12 @@ export function LiveSessionCard({ session, actions, compact }: { session: LiveSe
           <div className="flex flex-wrap items-center gap-2">
             <Badge tone={sessionTone[state]} dot={state === 'live'}>{t(`live.state.${state}`)}</Badge>
             {state === 'upcoming' && <span className="text-[13px] text-muted">{startsIn(session, now, t)}</span>}
-            <Badge>{PROVIDER_LABEL[session.provider]}</Badge>
+            <Badge>
+              <span className="inline-flex items-center gap-1">
+                <ProviderIcon provider={session.provider} size={12} />
+                {PROVIDER_LABEL[session.provider]}
+              </span>
+            </Badge>
           </div>
           <p className="mt-3 text-[13px] text-muted">{t('live.lessonN', { n: session.lessonOrder })} · {session.moduleTitle}</p>
           <h3 className={clsx('h-display mt-0.5 leading-tight', compact ? 'text-lg' : 'text-[22px] sm:text-[26px]')}>{session.lessonTitle}</h3>
@@ -59,7 +65,12 @@ export function LiveSessionCard({ session, actions, compact }: { session: LiveSe
         <div className="flex items-center gap-1.5"><FiClock /> <dt className="sr-only">{t('live.time')}</dt><dd className="text-ink">{timeRange(session)}</dd></div>
         <div className="flex items-center gap-1.5"><FiUser /> <dt className="sr-only">{t('live.mentor')}</dt><dd>{t('live.mentorName', { name: session.mentorName })} · {session.groupName}</dd></div>
       </dl>
-      {!compact && state === 'upcoming' && <p className="text-[13px] text-muted">{t('live.joinHint')}</p>}
+      {!compact && state !== 'ended' && state !== 'cancelled' && (
+        <p className="text-[13px] text-muted">
+          {state === 'upcoming' && `${t('live.joinHint')} `}
+          {t(`live.studentTip.${pickOf(session.provider)}`)}
+        </p>
+      )}
     </div>
   );
 }

@@ -2,8 +2,10 @@ import { api } from '@/core/api/axiosClient';
 import { ENDPOINTS } from '@/core/api/endpoints';
 import type { ApiResponse } from '@/core/api/types';
 import type {
+  AiAnswer,
   CodeFiles,
   Lesson,
+  MyGroup,
   LiveSession,
   MyScores,
   Progress,
@@ -21,6 +23,9 @@ export const learningApi = {
   getLesson: (id: string) => get<Lesson>(ENDPOINTS.lessons.one(id)),
   getProgress: () => get<Progress>(ENDPOINTS.progress.me),
   getMyScores: () => get<MyScores>(ENDPOINTS.progress.scores),
+  getMyGroup: () => get<MyGroup>(ENDPOINTS.progress.group),
+  askAi: (question: string, lessonId: string | null) =>
+    api.post<ApiResponse<AiAnswer>>(ENDPOINTS.ai.ask, { question, lessonId }).then((r) => r.data.data),
   getMyLiveSessions: () => get<LiveSession[]>(ENDPOINTS.liveSessions.my),
   completeLesson: (id: string) =>
     api

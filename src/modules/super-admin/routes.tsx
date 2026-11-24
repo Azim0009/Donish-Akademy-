@@ -16,6 +16,7 @@ const AllUsersPage = lazy(() => import('./pages/AllUsersPage'));
 const GlobalStatisticsPage = lazy(() => import('./pages/GlobalStatisticsPage'));
 const ContractsPage = lazy(() => import('./pages/ContractsPage'));
 const CoursesPage = lazy(() => import('./pages/CoursesPage'));
+const PartnersPage = lazy(() => import('./pages/PartnersPage'));
 const RequestsPage = lazy(() => import('./pages/RequestsPage'));
 const FinancePage = lazy(() => import('./pages/FinancePage'));
 const ReportsPage = lazy(() => import('./pages/ReportsPage'));
@@ -49,6 +50,7 @@ export const superAdminRoutes: RouteObject = {
     { path: PATHS.superAdmin.statistics, element: <GlobalStatisticsPage /> },
     { path: PATHS.superAdmin.contracts, element: <ContractsPage /> },
     { path: PATHS.superAdmin.courses, element: <CoursesPage /> },
+    { path: PATHS.superAdmin.partners, element: <PartnersPage /> },
     { path: PATHS.superAdmin.requests, element: <RequestsPage /> },
     { path: PATHS.superAdmin.finance, element: <FinancePage /> },
     { path: PATHS.superAdmin.reports, element: <ReportsPage /> },

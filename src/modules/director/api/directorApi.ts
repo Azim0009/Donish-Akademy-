@@ -10,6 +10,7 @@ import type { DirectorAssignable } from '@/core/auth/access';
 export type DirectorUserRole = DirectorAssignable | 'student';
 import type {
   Group,
+  GroupFormat,
   Lesson,
   LessonSummary,
   Track,
@@ -148,8 +149,20 @@ export const useCreateLesson = (moduleId: string) =>
 export const useSaveLesson = (id: string) =>
   useDirectorMutation((b: Lesson) => api.put(E.lesson(id), b));
 export const useCreateGroup = () =>
-  useDirectorMutation((b: { name: string; mentorId: string; schedule: string; capacity: number }) =>
-    post<Group>(E.groups, b),
+  useDirectorMutation(
+    (b: {
+      name: string;
+      mentorId: string;
+      schedule: string;
+      capacity: number;
+      format: GroupFormat;
+      room?: string;
+    }) => post<Group>(E.groups, b),
+  );
+/** Формат группы: онлайн или офлайн (кабинет / адрес) */
+export const useUpdateGroupFormat = (id: string) =>
+  useDirectorMutation((b: { format: GroupFormat; room: string | null }) =>
+    api.patch<ApiResponse<Group>>(E.group(id), b).then((r) => r.data.data),
   );
 export const useCreateUser = () =>
   useDirectorMutation(

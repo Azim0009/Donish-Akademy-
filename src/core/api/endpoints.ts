@@ -24,9 +24,22 @@ export const ENDPOINTS = {
   progress: {
     me: '/progress/me',
     scores: '/progress/scores',
+    group: '/progress/group',
     completeLesson: (id: string) => `/progress/lesson/${id}/complete`,
   },
   // --- Mentor ---
+  partner: {
+    dashboard: '/partner/dashboard',
+    courses: '/partner/courses',
+    course: (id: string) => `/partner/courses/${id}`,
+    students: '/partner/students',
+    student: (id: string) => `/partner/students/${id}`,
+  },
+  ai: { ask: '/ai/ask' },
+  publicPartner: {
+    page: (code: string) => `/public/partners/${code}`,
+    apply: (code: string) => `/public/partners/${code}/apply`,
+  },
   mentor: {
     dashboard: '/mentor/dashboard',
     groups: '/mentor/groups',
@@ -41,6 +54,7 @@ export const ENDPOINTS = {
     groupScores: (id: string) => `/mentor/groups/${id}/scores`,
     scores: '/mentor/scores',
     extraExam: '/mentor/extra-exam',
+    groupAi: (id: string) => `/mentor/groups/${id}/ai`,
   },
   // --- Director (только свой филиал) ---
   director: {
@@ -83,6 +97,8 @@ export const ENDPOINTS = {
     branchDirectors: (id: string) => `/superadmin/branches/${id}/directors`,
     directors: '/superadmin/directors',
     users: '/superadmin/users',
+    partners: '/superadmin/partners',
+    partner: (id: string) => `/superadmin/partners/${id}`,
     userAccess: (id: string) => `/superadmin/users/${id}/access`,
     user: (id: string) => `/superadmin/users/${id}`,
     statistics: '/superadmin/statistics',

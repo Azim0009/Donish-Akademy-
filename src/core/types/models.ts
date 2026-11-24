@@ -317,6 +317,9 @@ export interface LiveSessionInput {
 }
 
 // ---------- Группы ----------
+/** online — уроки по видеосвязи, offline — в кабинете филиала */
+export type GroupFormat = 'online' | 'offline';
+
 export interface Group {
   id: ID;
   branchId: ID;
@@ -324,6 +327,13 @@ export interface Group {
   trackTitle: string;
   name: string;
   schedule: string;
+  format: GroupFormat;
+  /** Для офлайн-группы: кабинет и адрес */
+  room: string | null;
+  /** AI-ментор включён ментором для группы */
+  aiMentor: boolean;
+  /** AI только подсказывает и не пишет готовое решение */
+  aiHintsOnly: boolean;
   mentorId: ID | null;
   mentorName: string | null;
   studentsCount: number;
@@ -570,4 +580,122 @@ export interface MyScores {
   currentMonth: number;
   currentWeek: number;
   months: { month: number; weeks: (WeekScore | null)[]; extra: ExtraExam | null }[];
+}
+
+/** Группа ученика: формат, расписание, кабинет */
+export interface MyGroup {
+  id: ID;
+  name: string;
+  format: GroupFormat;
+  room: string | null;
+  schedule: string;
+  mentorName: string | null;
+  aiMentor: boolean;
+  aiHintsOnly: boolean;
+}
+
+// ---------- Партнёры-преподаватели ----------
+export type CourseLevel = 'beginner' | 'intermediate' | 'advanced';
+export type PartnerCourseStatus = 'draft' | 'published';
+
+/** Курс партнёра: своё направление, цена и формат */
+export interface PartnerCourse {
+  id: ID;
+  partnerId: ID;
+  title: string;
+  description: string;
+  level: CourseLevel;
+  format: GroupFormat;
+  /** Цена в месяц, TJS */
+  priceMonthly: number;
+  durationMonths: number;
+  lessonsCount: number;
+  status: PartnerCourseStatus;
+  studentsCount: number;
+  createdAt: string;
+}
+export type PartnerCourseInput = Pick<
+  PartnerCourse,
+  'title' | 'description' | 'level' | 'format' | 'priceMonthly' | 'durationMonths' | 'lessonsCount'
+>;
+
+export interface Partner {
+  id: ID;
+  userId: ID;
+  name: string;
+  phone: string;
+  email: string;
+  /** Код ссылки: /p/<code> */
+  code: string;
+  specialty: string;
+  bio: string;
+  /** Доля партнёра с оплат его учеников, % */
+  sharePercent: number;
+  isActive: boolean;
+  createdAt: string;
+  coursesCount: number;
+  studentsCount: number;
+  clicks: number;
+}
+
+export type PartnerStudentStatus = 'new' | 'enrolled' | 'rejected';
+/** Ученик (заявка), пришедший по ссылке партнёра */
+export interface PartnerStudent {
+  id: ID;
+  partnerId: ID;
+  name: string;
+  phone: string;
+  courseId: ID;
+  courseTitle: string;
+  status: PartnerStudentStatus;
+  createdAt: string;
+}
+
+export interface PartnerDashboard {
+  partner: Partner;
+  clicks: number;
+  applications: number;
+  enrolled: number;
+  /** Доход партнёра в месяц: ученики × цена × доля */
+  monthlyIncome: number;
+  recent: PartnerStudent[];
+}
+
+/** Публичная страница партнёра */
+export interface PartnerPublic {
+  name: string;
+  specialty: string;
+  bio: string;
+  code: string;
+  courses: PartnerCourse[];
+}
+
+// ---------- AI-ментор ----------
+export interface AiMessage {
+  id: ID;
+  role: 'user' | 'assistant';
+  text: string;
+  at: string;
+}
+/** Вопрос ученика AI-ментору — ментор видит, о чём спрашивают */
+export interface AiQuestion {
+  id: ID;
+  studentId: ID;
+  studentName: string;
+  groupId: ID;
+  lessonTitle: string | null;
+  question: string;
+  at: string;
+}
+export interface GroupAiInfo {
+  aiMentor: boolean;
+  aiHintsOnly: boolean;
+  weekCount: number;
+  askedStudents: number;
+  recent: AiQuestion[];
+}
+export interface AiAnswer {
+  answer: AiMessage;
+  /** Сколько вопросов осталось сегодня */
+  left: number;
 }

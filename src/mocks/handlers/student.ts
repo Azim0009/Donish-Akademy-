@@ -26,6 +26,22 @@ export const studentHandlers = [
     }),
   ),
   http.get(url(ENDPOINTS.progress.me), () => ok(studentProgress())),
+  http.get(url(ENDPOINTS.progress.group), ({ request }) => {
+    const me = resolveMe(request.headers.get('X-Mock-User'), 'student');
+    const u = db.users.find((x) => x.id === me.id && x.role === 'student');
+    const g = u && db.groups.find((x) => x.id === u.groupId);
+    if (!g) return fail(404, 'ENTITY_NOT_FOUND', 'Группа не найдена');
+    return ok({
+      id: g.id,
+      name: g.name,
+      format: g.format,
+      room: g.room,
+      schedule: g.schedule,
+      mentorName: g.mentorName,
+      aiMentor: g.aiMentor,
+      aiHintsOnly: g.aiHintsOnly,
+    });
+  }),
   // Мои баллы: все месяцы курса до текущего
   http.get(url(ENDPOINTS.progress.scores), ({ request }) => {
     const me = resolveMe(request.headers.get('X-Mock-User'), 'student');
@@ -44,13 +60,15 @@ export const studentHandlers = [
     });
   }),
   // Онлайн-уроки группы ученика (расписание + записи)
-  http.get(url(ENDPOINTS.liveSessions.my), () =>
-    ok(
+  http.get(url(ENDPOINTS.liveSessions.my), ({ request }) => {
+    const me = resolveMe(request.headers.get('X-Mock-User'), 'student');
+    const groupId = db.users.find((x) => x.id === me.id)?.groupId ?? STUDENT_GROUP;
+    return ok(
       db.liveSessions
-        .filter((s) => s.groupId === STUDENT_GROUP && !s.isCancelled)
+        .filter((s) => s.groupId === groupId && !s.isCancelled)
         .sort((a, b) => a.startsAt.localeCompare(b.startsAt)),
-    ),
-  ),
+    );
+  }),
   http.post(url('/progress/lesson/:id/complete'), ({ params }) => {
     for (const m of db.modules) {
       const l = m.lessons.find((x) => x.id === params.id);

@@ -5,6 +5,7 @@ import type { ApiResponse } from '@/core/api/types';
 import type {
   Group,
   GroupMember,
+  GroupAiInfo,
   GroupScores,
   LiveSession,
   LiveSessionInput,
@@ -144,5 +145,16 @@ export const useSetExtraExam = (groupId: string) => {
     mutationFn: (body: { studentId: string; month: number; passed: boolean | null }) =>
       api.put(E.extraExam, body),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['mentor', 'scores', groupId] }),
+  });
+};
+
+// --- AI-ментор группы ---
+export const useGroupAi = (groupId: string) =>
+  useQuery({ queryKey: ['mentor', 'ai', groupId], queryFn: () => get<GroupAiInfo>(E.groupAi(groupId)) });
+export const useSetGroupAi = (groupId: string) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (b: { aiMentor?: boolean; aiHintsOnly?: boolean }) => api.patch(E.groupAi(groupId), b),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['mentor'] }),
   });
 };

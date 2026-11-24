@@ -11,6 +11,8 @@ export const PATHS = {
   forgotPassword: '/forgot-password',
   resetPassword: '/reset-password/:token',
   app: '/app',
+  /** Страница преподавателя-партнёра по его ссылке */
+  partnerPage: '/p/:code',
   forbidden: '/403',
 
   // Student — кабинет ученика
@@ -97,6 +99,15 @@ export const PATHS = {
   },
 
   // SuperAdmin — панель управления всеми филиалами
+  // Partner — преподаватель-партнёр со своими курсами
+  partner: {
+    root: '/partner',
+    courses: '/partner/courses',
+    students: '/partner/students',
+    notifications: '/partner/notifications',
+    settings: '/partner/settings',
+  },
+
   superAdmin: {
     root: '/super-admin',
     branches: '/super-admin/branches',
@@ -110,6 +121,7 @@ export const PATHS = {
     globalSettings: '/super-admin/global-settings',
     contracts: '/super-admin/contracts',
     courses: '/super-admin/courses',
+    partners: '/super-admin/partners',
     requests: '/super-admin/requests',
     finance: '/super-admin/finance',
     reports: '/super-admin/reports',

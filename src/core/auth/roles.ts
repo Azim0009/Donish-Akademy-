@@ -6,6 +6,7 @@ import { PATHS } from '@/core/config/paths';
  * administrator — администратор филиала (ресепшн: ученики, оплаты, логины);
  * mentor — преподаватель; student — ученик.
  * Сотрудники филиала: accountant — бухгалтер, cleaner — уборщик / уборщица, sales — отдел продаж.
+ * partner — преподаватель-партнёр: свои курсы на платформе и своя ссылка для учеников.
  */
 export const ROLES = [
   'super_admin',
@@ -16,6 +17,7 @@ export const ROLES = [
   'accountant',
   'cleaner',
   'sales',
+  'partner',
 ] as const;
 
 /** Сотрудники филиала с общей простой панелью */
@@ -33,4 +35,5 @@ export const ROLE_HOME: Record<Role, string> = {
   accountant: PATHS.accountant.root,
   cleaner: PATHS.cleaner.root,
   sales: PATHS.sales.root,
+  partner: PATHS.partner.root,
 };

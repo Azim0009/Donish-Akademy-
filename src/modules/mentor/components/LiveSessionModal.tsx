@@ -2,8 +2,24 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Group, LiveSession } from '@/core/types/models';
 import { getApiErrorMessage } from '@/core/api/axiosClient';
+import clsx from 'clsx';
+import { FiExternalLink } from 'react-icons/fi';
 import { Badge, Button, Input, Modal, Select, toast } from '@/shared/ui';
-import { detectProvider, isValidHttpsUrl, PROVIDER_LABEL, toEmbedUrl } from '@/shared/lib/liveSession';
+import {
+  detectProvider,
+  isValidHttpsUrl,
+  lastProvider,
+  matchesProvider,
+  NEW_MEETING_URL,
+  PICK_PROVIDERS,
+  pickOf,
+  PROVIDER_LABEL,
+  PROVIDER_PLACEHOLDER,
+  rememberProvider,
+  toEmbedUrl,
+  type PickProvider,
+} from '@/shared/lib/liveSession';
+import { ProviderIcon } from '@/shared/components/live/ProviderIcon';
 import { useCourseLessons, useSaveLiveSession } from '../api/mentorApi';
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -29,6 +45,7 @@ export function LiveSessionModal({ mode, groups, onClose }: { mode: LiveModalMod
     joinUrl: s?.joinUrl ?? '',
     recordingUrl: s?.recordingUrl ?? '',
   });
+  const [pick, setPick] = useState<PickProvider>(() => (s ? pickOf(s.provider) : lastProvider()));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const set = (k: keyof typeof form) => (e: { target: { value: string } }) => {
     setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -56,6 +73,8 @@ export function LiveSessionModal({ mode, groups, onClose }: { mode: LiveModalMod
       const d = Number(form.duration);
       if (!Number.isInteger(d) || d < 15 || d > 300) e.duration = t('live.durationError');
       if (!isValidHttpsUrl(form.joinUrl)) e.joinUrl = t('live.linkError');
+      else if (!matchesProvider(form.joinUrl, pick))
+        e.joinUrl = t('live.wrongProvider', { name: PROVIDER_LABEL[pick] });
     }
     if (form.recordingUrl.trim() && !toEmbedUrl(form.recordingUrl)) e.recordingUrl = t('live.recordingError');
     if (onlyRecording && !form.recordingUrl.trim()) e.recordingUrl = t('validation.required');
@@ -65,6 +84,7 @@ export function LiveSessionModal({ mode, groups, onClose }: { mode: LiveModalMod
 
   const submit = () => {
     if (!validate()) return;
+    if (!onlyRecording) rememberProvider(pick);
     const recordingUrl = form.recordingUrl.trim() || null;
     const body = onlyRecording
       ? { recordingUrl }
@@ -114,19 +134,60 @@ export function LiveSessionModal({ mode, groups, onClose }: { mode: LiveModalMod
               <Input label={t('live.date')} id="live-date" type="date" value={form.date} onChange={set('date')} error={errors.date} />
               <Input label={t('live.time')} id="live-time" type="time" value={form.time} onChange={set('time')} error={errors.time} />
             </div>
+            <fieldset className="flex flex-col gap-2">
+              <legend className="mb-1.5 text-sm font-medium">{t('live.provider')}</legend>
+              <div role="radiogroup" className="grid grid-cols-2 gap-2">
+                {PICK_PROVIDERS.map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    role="radio"
+                    aria-checked={pick === p}
+                    onClick={() => {
+                      setPick(p);
+                      setErrors((prev) => {
+                        const next = { ...prev };
+                        delete next.joinUrl;
+                        return next;
+                      });
+                    }}
+                    className={clsx(
+                      'flex h-11 items-center justify-center gap-2 rounded-ctl border px-2 text-[13px] font-medium transition-colors',
+                      pick === p ? 'border-brand bg-brand-soft text-ink' : 'border-line text-muted hover:border-ink/30 hover:text-ink',
+                    )}
+                  >
+                    <ProviderIcon provider={p} />
+                    <span className="truncate">{p === 'other' ? t('live.otherLink') : PROVIDER_LABEL[p]}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="rounded-ctl bg-sunken px-3.5 py-3 text-[13px] text-muted">
+                <p>{t(`live.providerSteps.${pick}`)}</p>
+                {pick !== 'other' && (
+                  <a
+                    href={NEW_MEETING_URL[pick]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1.5 inline-flex items-center gap-1 font-medium text-brand-strong hover:underline"
+                  >
+                    {t('live.openProvider', { name: PROVIDER_LABEL[pick] })} <FiExternalLink aria-hidden />
+                  </a>
+                )}
+              </div>
+            </fieldset>
             <div className="flex flex-col gap-1.5">
               <Input
                 label={t('live.joinUrl')}
                 id="live-url"
                 type="url"
                 inputMode="url"
-                placeholder="https://meet.google.com/abc-defg-hij"
+                placeholder={PROVIDER_PLACEHOLDER[pick]}
                 value={form.joinUrl}
                 onChange={set('joinUrl')}
                 error={errors.joinUrl}
                 hint={t('live.joinUrlHint')}
               />
-              {provider && isValidHttpsUrl(form.joinUrl) && (
+              {provider && isValidHttpsUrl(form.joinUrl) && !errors.joinUrl && (
                 <span className="text-[13px] text-muted">
                   {t('live.detected')} <Badge tone={provider === 'other' ? 'gray' : 'green'}>{PROVIDER_LABEL[provider]}</Badge>
                 </span>

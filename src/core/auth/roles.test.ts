@@ -1,8 +1,8 @@
 import { ROLES, ROLE_HOME } from './roles';
 
 describe('roles', () => {
-  it('ролей ровно 8: от SuperAdmin до ученика и сотрудников филиала', () => {
-    expect(ROLES).toHaveLength(8);
+  it('ролей ровно 9: от SuperAdmin до ученика, сотрудников филиала и партнёра', () => {
+    expect(ROLES).toHaveLength(9);
   });
 
   it('у каждой роли есть своя панель', () => {

@@ -34,6 +34,7 @@ const roleTone: Record<Role, BadgeTone> = {
   accountant: 'amber',
   cleaner: 'gray',
   sales: 'blue',
+  partner: 'green',
 };
 
 export default function AllUsersPage() {

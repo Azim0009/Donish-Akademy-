@@ -7,6 +7,7 @@ import { directorRoutes } from '@/modules/director/routes';
 import { administratorRoutes } from '@/modules/administrator/routes';
 import { accountantRoutes, cleanerRoutes, salesRoutes } from '@/modules/staff/routes';
 import { superAdminRoutes } from '@/modules/super-admin/routes';
+import { partnerRoutes } from '@/modules/partner/routes';
 import { NotFoundPage } from '@/shared/pages/NotFoundPage';
 import { ForbiddenPage } from '@/shared/pages/ForbiddenPage';
 import { PATHS } from '@/core/config/paths';
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
   cleanerRoutes,
   salesRoutes,
   superAdminRoutes,
+  partnerRoutes,
   { path: PATHS.app, element: <RoleHomeRedirect /> },
   { path: PATHS.forbidden, element: <ForbiddenPage /> },
   { path: '*', element: <NotFoundPage /> },

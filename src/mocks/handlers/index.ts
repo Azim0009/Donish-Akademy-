@@ -8,6 +8,8 @@ import { superAdminHandlers } from './superAdmin';
 import { notificationHandlers } from './notifications';
 import { taskHandlers } from './tasks';
 import { leadHandlers } from './leads';
+import { partnerHandlers } from './partners';
+import { aiHandlers } from './ai';
 
 export const handlers = [
   ...authHandlers,
@@ -20,4 +22,6 @@ export const handlers = [
   ...notificationHandlers,
   ...taskHandlers,
   ...leadHandlers,
+  ...partnerHandlers,
+  ...aiHandlers,
 ];

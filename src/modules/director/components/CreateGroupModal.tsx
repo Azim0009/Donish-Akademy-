@@ -4,14 +4,22 @@ import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { MAIN_TRACK } from '@/core/config/course';
 import { Button, Input, Modal, Select, toast } from '@/shared/ui';
+import { GroupFormatPicker } from '@/shared/components/groups/GroupFormatPicker';
 import { useDirectorUsers, useCreateGroup } from '../api/directorApi';
 
-const schema = z.object({
-  name: z.string().min(2, 'validation.min2'),
-  mentorId: z.string().min(1, 'validation.required'),
-  schedule: z.string().min(3, 'validation.required'),
-  capacity: z.coerce.number().min(4).max(40),
-});
+const schema = z
+  .object({
+    name: z.string().min(2, 'validation.min2'),
+    mentorId: z.string().min(1, 'validation.required'),
+    schedule: z.string().min(3, 'validation.required'),
+    capacity: z.coerce.number().min(4).max(40),
+    format: z.enum(['online', 'offline']),
+    room: z.string().optional(),
+  })
+  .refine((v) => v.format === 'online' || (v.room ?? '').trim().length >= 2, {
+    path: ['room'],
+    message: 'groups.roomRequired',
+  });
 type Form = z.infer<typeof schema>;
 
 export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -22,8 +30,11 @@ export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: ()
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
-  } = useForm<Form>({ resolver: zodResolver(schema), defaultValues: { capacity: 16 } });
+  } = useForm<Form>({ resolver: zodResolver(schema), defaultValues: { capacity: 16, format: 'online' } });
+  const format = watch('format');
   const err = (k: keyof Form) => errors[k]?.message && t(String(errors[k]!.message));
 
   const submit = handleSubmit((v) =>
@@ -77,6 +88,20 @@ export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: ()
             label: `${m.name} · ${t('groups.groupsCount', { count: m.groupsCount })}`,
           }))}
         />
+        <GroupFormatPicker
+          className="sm:col-span-2"
+          value={format}
+          onChange={(v) => setValue('format', v, { shouldValidate: !!errors.room })}
+        />
+        {format === 'offline' && (
+          <Input
+            label={t('groups.room')}
+            placeholder={t('groups.roomPlaceholder')}
+            className="sm:col-span-2"
+            {...register('room')}
+            error={err('room')}
+          />
+        )}
         <Input
           label={t('groups.schedule')}
           placeholder="Пн/Ср/Пт · 14:00–16:00"

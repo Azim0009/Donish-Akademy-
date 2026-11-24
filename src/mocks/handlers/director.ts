@@ -3,7 +3,7 @@ import type { Role } from '@/core/auth/roles';
 import { isStrongPassword, LOGIN_RE, staffEmail } from '@/shared/lib/credentials';
 import { http } from 'msw';
 import { ENDPOINTS } from '@/core/api/endpoints';
-import type { Group, Lesson, UserListItem } from '@/core/types/models';
+import type { Group, GroupFormat, Lesson, UserListItem } from '@/core/types/models';
 import { MAIN_TRACK } from '@/core/config/course';
 import { db, getLesson, saveLessonEdit, stats } from '../db';
 import { deletePerson, makeContract, updatePerson } from '../db';
@@ -284,7 +284,12 @@ export const directorHandlers = [
       mentorId: string;
       schedule: string;
       capacity: number;
+      format?: GroupFormat;
+      room?: string;
     };
+    const format: GroupFormat = body.format === 'offline' ? 'offline' : 'online';
+    if (format === 'offline' && !body.room?.trim())
+      return fail(400, 'VALIDATION_ERROR', 'Укажите кабинет или адрес');
     const mentor = db.users.find((u) => u.id === body.mentorId);
     const g: Group = {
       id: `group_${Date.now()}`,
@@ -293,6 +298,10 @@ export const directorHandlers = [
       trackTitle: MAIN_TRACK.title,
       name: body.name,
       schedule: body.schedule,
+      format,
+      room: format === 'offline' ? body.room!.trim() : null,
+      aiMentor: false,
+      aiHintsOnly: true,
       mentorId: mentor?.id ?? null,
       mentorName: mentor?.name ?? null,
       studentsCount: 0,
@@ -303,6 +312,17 @@ export const directorHandlers = [
     };
     db.groups.push(g);
     return ok(g);
+  }),
+  http.patch(url('/director/groups/:id'), async ({ params, request }) => {
+    const group = db.groups.find((g) => g.id === params.id);
+    if (!group) return fail(404, 'ENTITY_NOT_FOUND', 'Группа не найдена');
+    const body = (await request.json()) as { format?: GroupFormat; room?: string | null };
+    const format: GroupFormat = body.format === 'offline' ? 'offline' : 'online';
+    if (format === 'offline' && !body.room?.trim())
+      return fail(400, 'VALIDATION_ERROR', 'Укажите кабинет или адрес');
+    group.format = format;
+    group.room = format === 'offline' ? body.room!.trim() : null;
+    return ok(group);
   }),
   http.get(url('/director/groups/:id'), ({ params }) => {
     const group = db.groups.find((g) => g.id === params.id);

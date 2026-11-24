@@ -122,6 +122,21 @@ export const DEV_USERS: Record<Role, User> = {
     createdAt: '2026-07-01T08:00:00Z',
     isBlocked: false,
   },
+  partner: {
+    id: 'user_partner',
+    email: 'farhod.nazarov@donish.tj',
+    name: 'Фарход Назаров',
+    role: 'partner',
+    branchId: null,
+    branchName: null,
+    avatarUrl: null,
+    level: 0,
+    xp: 0,
+    language: 'ru',
+    theme: 'light',
+    createdAt: '2026-08-01T08:00:00Z',
+    isBlocked: false,
+  },
 };
 
 /** Демо мульти-роли: директор, который ещё и ведёт группы как ментор */

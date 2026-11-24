@@ -5,6 +5,7 @@ import { PATHS } from '@/core/config/paths';
 import type { GroupMember } from '@/core/types/models';
 import { formatNumber, timeAgo } from '@/core/utils/format';
 import { MonthSwitch } from '@/shared/components/scores/MonthSwitch';
+import { GroupFormatBadge } from '@/shared/components/groups/GroupFormatBadge';
 import {
   Avatar,
   Badge,
@@ -22,6 +23,7 @@ import { useGroupScores, useMentorGroup } from '../api/mentorApi';
 import { MonthSummary } from '../components/scores/MonthSummary';
 import { ScoreJournal } from '../components/scores/ScoreJournal';
 import { useJournal } from '../components/scores/useJournal';
+import { AiMentorCard } from '../components/AiMentorCard';
 
 type Tab = 'journal' | 'summary' | 'members';
 const TABS: Tab[] = ['journal', 'summary', 'members'];
@@ -101,9 +103,15 @@ export default function GroupDetailPage() {
       <PageHeader
         back={{ to: PATHS.mentor.groups, label: t('pages.mentor.groups') }}
         title={t('groups.groupName', { name: data.group.name })}
-        description={`${data.group.trackTitle} · ${data.group.schedule}`}
-        meta={<Badge tone="green">{data.group.avgProgress}%</Badge>}
+        description={[data.group.trackTitle, data.group.schedule, data.group.room].filter(Boolean).join(' · ')}
+        meta={
+          <>
+            <GroupFormatBadge format={data.group.format} />
+            <Badge tone="green">{data.group.avgProgress}%</Badge>
+          </>
+        }
       />
+      <AiMentorCard groupId={groupId} />
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="-mx-1 overflow-x-auto px-1">
           <Tabs<Tab>

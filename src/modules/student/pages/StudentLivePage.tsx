@@ -1,19 +1,21 @@
 import { generatePath, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiCalendar, FiPlayCircle } from 'react-icons/fi';
+import { FiCalendar, FiMapPin, FiPlayCircle } from 'react-icons/fi';
 import { PATHS } from '@/core/config/paths';
 import { formatDate } from '@/core/utils/format';
-import { Badge, EmptyState, ErrorState, Loader, PageHeader, Section } from '@/shared/ui';
+import { Badge, Card, EmptyState, ErrorState, Loader, PageHeader, Section } from '@/shared/ui';
 import { JoinButton, LiveSessionCard } from '@/shared/components/LiveSessionCard';
 import { useNow } from '@/shared/hooks/useNow';
 import { nextSession, sessionState, sessionTone, timeRange } from '@/shared/lib/liveSession';
-import { useMyLiveSessions } from '../hooks/useLearning';
+import { useMyGroup, useMyLiveSessions } from '../hooks/useLearning';
 
 /** Онлайн-уроки ученика: ближайший урок, расписание и записи прошедших уроков */
 export default function StudentLivePage() {
   const { t } = useTranslation();
   const now = useNow();
   const { data, isLoading, isError, refetch } = useMyLiveSessions();
+  const group = useMyGroup().data;
+  const offline = group?.format === 'offline';
 
   if (isLoading) return <Loader />;
   if (isError || !data) return <ErrorState onRetry={refetch} />;
@@ -27,7 +29,20 @@ export default function StudentLivePage() {
     <div className="mx-auto flex max-w-4xl flex-col gap-6">
       <PageHeader title={t('pages.student.live')} description={t('live.studentDescription')} />
 
-      {next ? <LiveSessionCard session={next} /> : <Section><EmptyState icon={<FiCalendar />} title={t('live.noUpcoming')} description={t('live.noUpcomingHint')} /></Section>}
+      {offline && (
+        <Card className="flex flex-col gap-3 border-brand/30 bg-brand-soft/40 p-5 sm:flex-row sm:items-center">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-soft text-lg text-brand-strong">
+            <FiMapPin />
+          </span>
+          <div className="min-w-0">
+            <p className="font-semibold">{t('live.offlineTitle', { group: group.name })}</p>
+            <p className="text-sm text-muted">{[group.room, group.schedule].filter(Boolean).join(' · ')}</p>
+            <p className="mt-1 text-[13px] text-muted">{t('live.offlineHint')}</p>
+          </div>
+        </Card>
+      )}
+
+      {next ? <LiveSessionCard session={next} /> : offline ? null : <Section><EmptyState icon={<FiCalendar />} title={t('live.noUpcoming')} description={t('live.noUpcomingHint')} /></Section>}
 
       {upcoming.length > 0 && (
         <Section title={t('live.schedule')} bodyClassName="px-0 pb-2">
@@ -52,6 +67,7 @@ export default function StudentLivePage() {
         </Section>
       )}
 
+      {!(offline && past.length === 0) && (
       <Section title={t('live.recordings')} description={t('live.recordingsDescription')} bodyClassName="px-0 pb-2">
         {past.length === 0 ? (
           <EmptyState icon={<FiPlayCircle />} title={t('live.noRecordingsYet')} />
@@ -75,6 +91,7 @@ export default function StudentLivePage() {
           </ul>
         )}
       </Section>
+      )}
     </div>
   );
 }

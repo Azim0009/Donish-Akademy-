@@ -274,6 +274,12 @@ const dshMentors = [0, 1, 2, 3].map(() => addUser('mentor', 'branch_dushanbe'));
     trackTitle: MAIN_TRACK.title,
     name,
     schedule: schedules[i],
+    // FS-01, FS-02 — онлайн; FS-03, FS-04 — офлайн в филиале
+    format: i < 2 ? 'online' : 'offline',
+    room: i < 2 ? null : `Кабинет ${i + 1} · ул. Рудаки 45`,
+    // AI-ментор: в FS-01 включён (только подсказки), в остальных ментор ещё не включал
+    aiMentor: i === 0,
+    aiHintsOnly: true,
     mentorId: dshMentors[i % 3].id,
     mentorName: dshMentors[i % 3].name,
     studentsCount: 0,
@@ -947,6 +953,17 @@ db.notifications = {
       'success',
       0,
       false,
+    ),
+  ],
+  partner: [
+    n(
+      'n1',
+      'Новая заявка по вашей ссылке',
+      'Шахноза Рахимова хочет на курс «UI/UX-дизайн в Figma».',
+      'success',
+      0,
+      false,
+      '/partner/students',
     ),
   ],
   mentor: [

@@ -47,7 +47,8 @@ export function toEmbedUrl(url: string | null | undefined): string | null {
   const host = u.hostname.replace(/^www\.|^m\./, '');
   // YouTube: watch?v=ID, youtu.be/ID, /shorts/ID, /live/ID, /embed/ID
   if (host === 'youtube.com' || host === 'youtube-nocookie.com') {
-    const id = u.searchParams.get('v') ?? u.pathname.match(/^\/(?:embed|shorts|live)\/([\w-]{6,})/)?.[1];
+    const id =
+      u.searchParams.get('v') ?? u.pathname.match(/^\/(?:embed|shorts|live)\/([\w-]{6,})/)?.[1];
     return id ? `https://www.youtube.com/embed/${id}` : null;
   }
   if (host === 'youtu.be') {
@@ -83,7 +84,8 @@ export function sessionState(s: LiveSession, now = Date.now()): SessionState {
   return 'upcoming';
 }
 
-export const canJoin = (s: LiveSession, now = Date.now()) => ['soon', 'live'].includes(sessionState(s, now));
+export const canJoin = (s: LiveSession, now = Date.now()) =>
+  ['soon', 'live'].includes(sessionState(s, now));
 
 export const sessionTone: Record<SessionState, BadgeTone> = {
   upcoming: 'blue',
@@ -95,9 +97,11 @@ export const sessionTone: Record<SessionState, BadgeTone> = {
 
 /** Ближайший урок: идущий сейчас или следующий по времени */
 export function nextSession(list: LiveSession[], now = Date.now()) {
-  return [...list]
-    .filter((s) => ['live', 'soon', 'upcoming'].includes(sessionState(s, now)))
-    .sort((a, b) => a.startsAt.localeCompare(b.startsAt))[0] ?? null;
+  return (
+    [...list]
+      .filter((s) => ['live', 'soon', 'upcoming'].includes(sessionState(s, now)))
+      .sort((a, b) => a.startsAt.localeCompare(b.startsAt))[0] ?? null
+  );
 }
 
 /** «14:00–16:00» */
@@ -107,3 +111,45 @@ export const timeRange = (s: LiveSession) => {
   const hm = (d: Date) => d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
   return `${hm(start)}–${hm(end)}`;
 };
+
+// ---------- Выбор сервиса видеосвязи (ментор) ----------
+/** Что выбирает ментор: три основных сервиса или любая другая ссылка (Jitsi и др.) */
+export type PickProvider = 'google_meet' | 'zoom' | 'telegram' | 'other';
+export const PICK_PROVIDERS: PickProvider[] = ['google_meet', 'zoom', 'telegram', 'other'];
+export const pickOf = (p: MeetingProvider): PickProvider => (p === 'jitsi' ? 'other' : p);
+
+/** Где создать новую встречу */
+export const NEW_MEETING_URL: Record<Exclude<PickProvider, 'other'>, string> = {
+  google_meet: 'https://meet.new',
+  zoom: 'https://zoom.us/meeting/schedule',
+  telegram: 'https://web.telegram.org/',
+};
+
+export const PROVIDER_PLACEHOLDER: Record<PickProvider, string> = {
+  google_meet: 'https://meet.google.com/abc-defg-hij',
+  zoom: 'https://us05web.zoom.us/j/123456789?pwd=…',
+  telegram: 'https://t.me/+AbCdEf…?videochat',
+  other: 'https://meet.jit.si/donish-fs01',
+};
+
+/** Ссылка подходит выбранному сервису */
+export const matchesProvider = (url: string, pick: PickProvider) =>
+  pick === 'other' || detectProvider(url) === pick;
+
+/** Сервис, выбранный ментором в прошлый раз */
+const PROVIDER_KEY = 'donish.liveProvider';
+export function lastProvider(): PickProvider {
+  try {
+    const v = localStorage.getItem(PROVIDER_KEY) as PickProvider | null;
+    return v && PICK_PROVIDERS.includes(v) ? v : 'google_meet';
+  } catch {
+    return 'google_meet';
+  }
+}
+export function rememberProvider(p: PickProvider) {
+  try {
+    localStorage.setItem(PROVIDER_KEY, p);
+  } catch {
+    /* приватный режим — просто не запоминаем */
+  }
+}

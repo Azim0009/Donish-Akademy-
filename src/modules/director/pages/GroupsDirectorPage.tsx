@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { generatePath, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiCalendar, FiPlus, FiSearch } from 'react-icons/fi';
+import { FiCalendar, FiMapPin, FiPlus, FiSearch } from 'react-icons/fi';
+import type { GroupFormat } from '@/core/types/models';
+import { GroupFormatBadge } from '@/shared/components/groups/GroupFormatBadge';
 import { PATHS } from '@/core/config/paths';
 import {
   Avatar,
@@ -14,6 +16,7 @@ import {
   Loader,
   PageHeader,
   ProgressBar,
+  Tabs,
 } from '@/shared/ui';
 import { useDirectorGroups } from '../api/directorApi';
 import { CreateGroupModal } from '../components/CreateGroupModal';
@@ -22,7 +25,10 @@ export default function GroupsDirectorPage() {
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
-  const { data, isLoading, isError, refetch } = useDirectorGroups(search);
+  const [filter, setFilter] = useState<'all' | GroupFormat>('all');
+  const { data: all, isLoading, isError, refetch } = useDirectorGroups(search);
+  const data = all && (filter === 'all' ? all : all.filter((g) => g.format === filter));
+  const count = (f: GroupFormat) => (all ?? []).filter((g) => g.format === f).length;
 
   return (
     <>
@@ -41,7 +47,17 @@ export default function GroupsDirectorPage() {
         leftIcon={<FiSearch />}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="mb-5 sm:w-80"
+        className="mb-4 sm:w-80"
+      />
+      <Tabs<'all' | GroupFormat>
+        className="mb-5"
+        value={filter}
+        onChange={setFilter}
+        tabs={[
+          { value: 'all', label: t('common.all'), count: all?.length },
+          { value: 'online', label: t('groups.format.online'), count: count('online') },
+          { value: 'offline', label: t('groups.format.offline'), count: count('offline') },
+        ]}
       />
       {isLoading ? (
         <Loader />
@@ -64,16 +80,26 @@ export default function GroupsDirectorPage() {
                 <Card className="flex h-full flex-col gap-4 p-5 transition-colors group-hover:border-brand/50">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <h3 className="h-display text-xl">{g.name}</h3>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="h-display text-xl">{g.name}</h3>
+                        <GroupFormatBadge format={g.format} />
+                      </div>
                       <p className="text-sm text-muted">{g.trackTitle}</p>
                     </div>
                     <Badge tone={fill >= 90 ? 'amber' : 'green'}>
                       {g.studentsCount}/{g.capacity}
                     </Badge>
                   </div>
-                  <p className="flex items-center gap-2 text-sm">
-                    <FiCalendar className="text-muted" /> {g.schedule}
-                  </p>
+                  <div className="flex flex-col gap-1">
+                    <p className="flex items-center gap-2 text-sm">
+                      <FiCalendar className="text-muted" /> {g.schedule}
+                    </p>
+                    {g.room && (
+                      <p className="flex items-center gap-2 text-sm">
+                        <FiMapPin className="text-muted" /> {g.room}
+                      </p>
+                    )}
+                  </div>
                   <div>
                     <div className="mb-1.5 flex justify-between text-xs text-muted">
                       <span>{t('groups.avgProgress')}</span>

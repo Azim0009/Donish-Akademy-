@@ -77,6 +77,12 @@ export const MENUS: Record<Role, MenuItem[]> = {
       section: 'super_admin.courses',
     },
     {
+      to: PATHS.superAdmin.partners,
+      labelKey: 'pages.superAdmin.partners',
+      icon: FiUserCheck,
+      section: 'super_admin.partners',
+    },
+    {
       to: PATHS.superAdmin.requests,
       labelKey: 'pages.superAdmin.requests',
       icon: FiInbox,
@@ -352,6 +358,28 @@ export const MENUS: Record<Role, MenuItem[]> = {
       section: 'sales.tasks',
     },
     ...common('sales', PATHS.sales),
+  ],
+  partner: [
+    {
+      to: PATHS.partner.root,
+      labelKey: 'pages.partner.dashboard',
+      icon: FiHome,
+      end: true,
+      section: 'partner.dashboard',
+    },
+    {
+      to: PATHS.partner.courses,
+      labelKey: 'pages.partner.courses',
+      icon: FiBookOpen,
+      section: 'partner.courses',
+    },
+    {
+      to: PATHS.partner.students,
+      labelKey: 'pages.partner.students',
+      icon: FiUsers,
+      section: 'partner.students',
+    },
+    ...common('partner', PATHS.partner),
   ],
 };
 

@@ -4,6 +4,7 @@ import { PATHS } from '@/core/config/paths';
 import { RequireRole } from '@/app/router/guards/RequireRole';
 import { PanelLayout } from '@/shared/layouts/PanelLayout';
 import { studentMenu } from './menu';
+import { AiMentorWidget } from './components/AiMentorWidget';
 
 // Ленивая загрузка: каждая страница — отдельный чанк
 const StudentDashboardPage = lazy(() => import('./pages/StudentDashboardPage'));
@@ -22,6 +23,7 @@ export const studentRoutes: RouteObject = {
   element: (
     <RequireRole roles={['student']}>
       <PanelLayout titleKey="panels.student" basePath={PATHS.student.root} menu={studentMenu} />
+      <AiMentorWidget />
     </RequireRole>
   ),
   children: [
