@@ -14,6 +14,7 @@ import { TheoryStep } from '../components/lesson/steps/TheoryStep';
 import { VideoStep } from '../components/lesson/steps/VideoStep';
 import { ExampleStep } from '../components/lesson/steps/ExampleStep';
 import { QuizStep } from '../components/lesson/steps/QuizStep';
+import { DollAmount } from '@/shared/components/Doll';
 
 /**
  * Экран урока: теория → видео → пример → онлайн-урок с ментором → запись → домашнее задание → тест.
@@ -76,7 +77,9 @@ function LessonView({ lessonId }: { lessonId: string }) {
               <FiClock className="mr-0.5" />{' '}
               {t('common.minutes', { count: lesson.durationMinutes })}
             </Badge>
-            <Badge tone="amber">+{lesson.xpReward} XP</Badge>
+            <Badge tone="amber">
+              <DollAmount value={lesson.xpReward} sign size={13} />
+            </Badge>
           </>
         }
       />

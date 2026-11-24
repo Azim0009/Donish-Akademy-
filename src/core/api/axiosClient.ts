@@ -1,4 +1,5 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import i18n from 'i18next';
 import { env } from '@/core/config/env';
 import { useAuthStore } from '@/core/auth/authStore';
 import { ENDPOINTS } from './endpoints';
@@ -62,7 +63,12 @@ api.interceptors.response.use(
 /** Достаёт понятное сообщение об ошибке из ответа API */
 export function getApiErrorMessage(error: unknown): string {
   if (axios.isAxiosError<ApiResponse<null>>(error)) {
-    return error.response?.data?.error?.message ?? error.message;
+    const msg = error.response?.data?.error?.message;
+    if (msg) return msg;
+    // ответ не от API (нет нашего формата): демо-данные MSW не запустились в этом окне
+    if (env.useMocks && (!error.response || error.response.status === 404))
+      return i18n.t('errors.mocksOff');
+    return error.message;
   }
   return 'Unknown error';
 }

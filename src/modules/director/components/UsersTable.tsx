@@ -11,6 +11,7 @@ import { ManageUser } from './ManageUser';
 import { UserRowActions, type ManageMode } from '@/shared/components/UserRowActions';
 import { AccessSummary } from '@/shared/components/AccessEditor';
 import { userRoles } from '@/core/auth/access';
+import { CURRENCY } from '@/shared/components/Doll';
 
 /** Таблица учеников, менторов или всех сотрудников филиала (staff) */
 export function UsersTable({
@@ -146,7 +147,7 @@ export function UsersTable({
             },
             {
               key: 'xp',
-              header: 'XP',
+              header: CURRENCY,
               hideOnMobile: true,
               className: 'text-right',
               cell: (u) => formatNumber(u.xp),

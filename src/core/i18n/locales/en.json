@@ -34,7 +34,8 @@
     "forbidden": "Access denied",
     "forbiddenText": "Your role has no access to this page. Go back to your panel.",
     "notFound": "Page not found",
-    "notFoundText": "The link may be outdated or the address has a typo."
+    "notFoundText": "The link may be outdated or the address has a typo.",
+    "mocksOff": "Demo data did not start in this window (a browser service worker runs it). Open the site in a normal Chrome tab and turn on phone view in DevTools: Cmd+Option+I → Cmd+Shift+M."
   },
   "switchers": {
     "devRole": "Role (dev)",
@@ -277,7 +278,7 @@
     "quizFailed": "You need at least 60%. Re-read the theory and try again.",
     "tryAgain": "Try again",
     "finish": "Finish lesson",
-    "completed": "Lesson complete! +{{xp}} XP",
+    "completed": "Lesson complete! +{{xp}} Doll",
     "stepOf": "Step {{n}} of {{total}}",
     "noVideo": "No video for this lesson yet",
     "noVideoHint": "Read the theory and try the example — the video will be added later.",
@@ -307,7 +308,7 @@
     "more": "More",
     "badges": "Badges",
     "badgesHint": "Earn them by completing modules and tracks",
-    "toNextLevel": "{{xp}} XP to level {{level}}"
+    "toNextLevel": "{{xp}} Doll to level {{level}}"
   },
   "mentor": {
     "dashboardTitle": "Mentor workspace",
@@ -622,7 +623,7 @@
     "currentPassword": "Current password",
     "changePassword": "Change password",
     "deleteTitle": "Delete account",
-    "deleteHint": "Progress, XP and submissions will be deleted",
+    "deleteHint": "Progress, Doll and submissions will be deleted",
     "delete": "Delete account",
     "deleteConfirm": "Delete account?",
     "deleteBody": "This action cannot be undone.",

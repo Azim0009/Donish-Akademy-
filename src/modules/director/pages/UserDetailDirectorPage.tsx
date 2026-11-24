@@ -17,6 +17,7 @@ import {
   toast,
 } from '@/shared/ui';
 import { useDirectorUser, useToggleBlock } from '../api/directorApi';
+import { CURRENCY } from '@/shared/components/Doll';
 
 export default function UserDetailDirectorPage() {
   const { t } = useTranslation();
@@ -96,7 +97,7 @@ export default function UserDetailDirectorPage() {
                   <ProgressBar value={u.progress} className="mt-2" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted">XP</p>
+                  <p className="text-xs text-muted">{CURRENCY}</p>
                   <p className="h-display mt-1 text-2xl">{formatNumber(u.xp)}</p>
                 </div>
                 <div>

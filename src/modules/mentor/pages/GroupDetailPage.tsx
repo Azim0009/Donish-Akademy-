@@ -24,6 +24,7 @@ import { MonthSummary } from '../components/scores/MonthSummary';
 import { ScoreJournal } from '../components/scores/ScoreJournal';
 import { useJournal } from '../components/scores/useJournal';
 import { AiMentorCard } from '../components/AiMentorCard';
+import { CURRENCY } from '@/shared/components/Doll';
 
 type Tab = 'journal' | 'summary' | 'members';
 const TABS: Tab[] = ['journal', 'summary', 'members'];
@@ -85,7 +86,7 @@ export default function GroupDetailPage() {
     },
     {
       key: 'xp',
-      header: 'XP',
+      header: CURRENCY,
       hideOnMobile: true,
       className: 'text-right',
       cell: (m) => formatNumber(m.xp),

@@ -10,6 +10,7 @@ import { Avatar, Button, Card, ErrorState, Loader, ProgressBar, Section } from '
 import { useModules, useProgress } from '../hooks/useLearning';
 import { ActivityCalendar } from '../components/ActivityCalendar';
 import { LevelCard } from '../components/LevelCard';
+import { CURRENCY } from '@/shared/components/Doll';
 
 // Бейджи — этап V1, сейчас показываем как цели
 const badges = ['Frontend', 'React', 'Backend', 'Fullstack + AI'];
@@ -54,7 +55,7 @@ export default function ProfilePage() {
             [t('student.lessonsDone'), p.completedLessons],
             [t('student.streak'), t('common.days', { count: p.streakDays })],
             [t('student.quizAverage'), `${p.quizAverage}%`],
-            ['XP', formatNumber(p.xpEarned)],
+            [CURRENCY, formatNumber(p.xpEarned)],
           ].map(([label, value]) => (
             <Card key={String(label)} className="p-4">
               <p className="text-xs text-muted">{label}</p>

@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { FiZap } from 'react-icons/fi';
 import type { Progress } from '@/core/types/models';
 import { formatNumber } from '@/core/utils/format';
 import { Card, ProgressBar } from '@/shared/ui';
+import { DollAmount } from '@/shared/components/Doll';
 
 export function LevelCard({ progress }: { progress: Progress }) {
   const { t } = useTranslation();
@@ -17,10 +17,15 @@ export function LevelCard({ progress }: { progress: Progress }) {
         </span>
         <div className="min-w-0 flex-1">
           <p className="flex items-center gap-1.5 text-sm text-muted">
-            <FiZap className="text-amber" /> {formatNumber(progress.xpEarned)} XP
+            <DollAmount value={progress.xpEarned} />
           </p>
           <ProgressBar value={pct} tone="amber" className="mt-2" />
-          <p className="mt-1.5 text-xs text-muted">{t('profile.toNextLevel', { xp: formatNumber(progress.xpForNextLevel - progress.xpEarned), level: progress.level + 1 })}</p>
+          <p className="mt-1.5 text-xs text-muted">
+            {t('profile.toNextLevel', {
+              xp: formatNumber(progress.xpForNextLevel - progress.xpEarned),
+              level: progress.level + 1,
+            })}
+          </p>
         </div>
       </div>
     </Card>

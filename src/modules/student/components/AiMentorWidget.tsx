@@ -66,7 +66,11 @@ export function AiMentorWidget() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="fixed bottom-5 right-5 z-40 inline-flex h-12 items-center gap-2 rounded-full bg-brand px-4 font-medium text-brand-ink shadow-pop transition-colors hover:bg-brand-strong"
+          className={clsx(
+            // на уроке внизу справа кнопка «Далее» — поднимаем выше, чтобы не закрывать её
+            lessonId ? 'bottom-24' : 'bottom-5',
+            'fixed right-5 z-40 inline-flex h-12 items-center gap-2 rounded-full bg-brand px-4 font-medium text-brand-ink shadow-pop transition-colors hover:bg-brand-strong',
+          )}
         >
           <FiCpu aria-hidden /> {t('ai.button')}
         </button>

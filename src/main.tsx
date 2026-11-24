@@ -10,7 +10,12 @@ import '@/styles/index.css';
 async function enableMocking() {
   if (!env.useMocks) return;
   const { worker } = await import('@/mocks/browser');
-  await worker.start({ onUnhandledRequest: 'bypass' });
+  try {
+    await worker.start({ onUnhandledRequest: 'bypass' });
+  } catch (e) {
+    // например, в симуляторе телефона-расширении service worker запрещён — сайт откроется, но без демо-данных
+    console.warn('[MSW] демо-данные не запустились:', e);
+  }
 }
 
 enableMocking().then(() => {

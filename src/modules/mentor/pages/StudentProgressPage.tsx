@@ -7,6 +7,7 @@ import { formatNumber, timeAgo } from '@/core/utils/format';
 import { submissionTone } from '@/shared/lib/statusTone';
 import { Avatar, Badge, Card, EmptyState, ErrorState, Loader, PageHeader, ProgressBar, Section } from '@/shared/ui';
 import { useStudentProgress } from '../api/mentorApi';
+import { CURRENCY } from '@/shared/components/Doll';
 
 export default function StudentProgressPage() {
   const { t } = useTranslation();
@@ -27,7 +28,7 @@ export default function StudentProgressPage() {
         </div>
         <div className="grid grid-cols-2 gap-6 text-center">
           <div><p className="h-display text-2xl">{s.progress}%</p><p className="text-xs text-muted">{t('users.progress')}</p></div>
-          <div><p className="h-display text-2xl">{formatNumber(s.xp)}</p><p className="text-xs text-muted">XP</p></div>
+          <div><p className="h-display text-2xl">{formatNumber(s.xp)}</p><p className="text-xs text-muted">{CURRENCY}</p></div>
         </div>
       </Card>
 
