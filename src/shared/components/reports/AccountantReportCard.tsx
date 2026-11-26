@@ -1,6 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import type { AccountantReport } from '@/core/types/models';
-import { formatDateTime, formatMoney, formatMonth } from '@/core/utils/format';
+import { formatDate, formatDateTime, formatMoney } from '@/core/utils/format';
+
+/** «1 нояб. – 26 нояб. 2026 г.» */
+const formatPeriod = (from: string, to: string) => {
+  const d = (s: string) => new Date(`${s}T00:00:00`).toISOString();
+  return `${formatDate(d(from), { day: 'numeric', month: 'short' })} – ${formatDate(d(to))}`;
+};
 import { reportStatusTone } from '@/shared/lib/reports';
 import { Badge } from '@/shared/ui';
 
@@ -65,7 +71,9 @@ export function AccountantReportHeader({ r }: { r: AccountantReport }) {
   const { t } = useTranslation();
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <p className="font-semibold">{t('accReports.titleFor', { month: formatMonth(r.month) })}</p>
+      <p className="font-semibold">
+        {t('accReports.titleFor', { period: formatPeriod(r.dateFrom, r.dateTo) })}
+      </p>
       <Badge tone={reportStatusTone[r.status]}>{t(`reports.status.${r.status}`)}</Badge>
       <span className="text-xs text-muted">
         {r.accountantName}

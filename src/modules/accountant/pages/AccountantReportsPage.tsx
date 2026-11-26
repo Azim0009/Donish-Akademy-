@@ -3,12 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { FiFileText, FiPlus, FiSend, FiTrash2 } from 'react-icons/fi';
 import { getApiErrorMessage } from '@/core/api/axiosClient';
 import type { AccountantReport, ReportExpense } from '@/core/types/models';
-import { formatMonth } from '@/core/utils/format';
 import {
   AccountantReportHeader,
   AccountantReportSummary,
 } from '@/shared/components/reports/AccountantReportCard';
-import { EXPENSE_CATEGORIES, lastMonths } from '@/shared/lib/reports';
+import { EXPENSE_CATEGORIES } from '@/shared/lib/reports';
 import {
   Button,
   Card,
@@ -30,13 +29,26 @@ import {
   useSendAccountantReport,
 } from '../api/accountingApi';
 
+/** «2026-11-26» по местному времени */
+const isoDay = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
 /** Бухгалтер → директор: деньги за месяц (как директор → SuperAdmin) */
 export default function AccountantReportsPage() {
   const { t } = useTranslation();
   const { data, isLoading, isError, refetch } = useAccountantReports();
   const create = useCreateAccountantReport();
   const [newOpen, setNewOpen] = useState(false);
-  const [month, setMonth] = useState(lastMonths(1)[0]);
+  const today = isoDay(new Date());
+  const [period, setPeriod] = useState({ dateFrom: today.slice(0, 8) + '01', dateTo: today });
+  const periodError =
+    !period.dateFrom || !period.dateTo
+      ? t('accReports.pickDates')
+      : period.dateFrom > period.dateTo
+        ? t('accReports.fromAfterTo')
+        : period.dateTo > today
+          ? t('accReports.toFuture')
+          : '';
 
   if (isLoading) return <Loader />;
   if (isError || !data) return <ErrorState onRetry={refetch} />;
@@ -72,8 +84,9 @@ export default function AccountantReportsPage() {
               </Button>
               <Button
                 loading={create.isPending}
+                disabled={!!periodError}
                 onClick={() =>
-                  create.mutate(month, {
+                  create.mutate(period, {
                     onSuccess: () => {
                       toast(t('accReports.created'), 'success');
                       setNewOpen(false);
@@ -87,12 +100,23 @@ export default function AccountantReportsPage() {
             </>
           }
         >
-          <Select
-            label={t('reports.month')}
-            value={month}
-            onChange={(e) => setMonth(e.target.value)}
-            options={lastMonths(3).map((m) => ({ value: m, label: formatMonth(m) }))}
-          />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Input
+              label={t('accReports.dateFrom')}
+              type="date"
+              max={today}
+              value={period.dateFrom}
+              onChange={(e) => setPeriod((p) => ({ ...p, dateFrom: e.target.value }))}
+            />
+            <Input
+              label={t('accReports.dateTo')}
+              type="date"
+              max={today}
+              value={period.dateTo}
+              onChange={(e) => setPeriod((p) => ({ ...p, dateTo: e.target.value }))}
+              error={periodError || undefined}
+            />
+          </div>
           <p className="mt-3 text-sm text-muted">{t('accReports.newHint')}</p>
         </Modal>
       )}

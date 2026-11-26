@@ -22,8 +22,8 @@ export const useAccountantReports = () =>
     queryFn: () => data(api.get<ApiResponse<AccountantReport[]>>(E.reports)),
   });
 export const useCreateAccountantReport = () =>
-  useAccMutation((month: string) =>
-    data(api.post<ApiResponse<AccountantReport>>(E.reports, { month })),
+  useAccMutation((period: { dateFrom: string; dateTo: string }) =>
+    data(api.post<ApiResponse<AccountantReport>>(E.reports, period)),
   );
 export const useSaveAccountantReport = () =>
   useAccMutation(({ id, ...b }: { id: string; expenses: ReportExpense[]; comment: string }) =>

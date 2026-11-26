@@ -32,6 +32,19 @@ export const revenue = (branchId: string, days: number, offset = 0) => {
   const d = daily[branchId] ?? [];
   return sum(d.slice(Math.max(0, d.length - days - offset), d.length - offset));
 };
+/** выручка филиала за даты «2026-11-01» … «2026-11-26» включительно */
+export function rangeRevenue(branchId: string, from: string, to: string) {
+  const day = (iso: string) => {
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(y, m - 1, d).getTime();
+  };
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const last = Math.min(day(to), today.getTime());
+  const days = Math.round((last - day(from)) / 86400000) + 1;
+  const offset = Math.round((today.getTime() - last) / 86400000);
+  return days > 0 ? revenue(branchId, days, offset) : 0;
+}
 export const pct = (cur: number, prev: number) =>
   prev ? Math.round(((cur - prev) / prev) * 1000) / 10 : 0;
 

@@ -1640,17 +1640,17 @@
     "checkAlt": "Check for receipt {{no}}"
   },
   "accReports": {
-    "description": "Monthly branch money report for the director. Income fills in from the administrator’s payments; you enter the expenses.",
+    "description": "Branch money report for the director over the dates you pick. Income fills in from the administrator’s payments; you enter the expenses.",
     "empty": "No reports yet",
-    "newHint": "Monthly income fills in from payments. Expenses carry over from the last report and can be edited.",
+    "newHint": "Income for these dates fills in from payments. Expenses carry over from the last report and can be edited.",
     "created": "Report created — check expenses and send it to the director",
     "income": "Income",
     "expenses": "Expenses",
     "balance": "Balance",
     "paymentsCount_one": "{{count}} payment",
     "paymentsCount_other": "{{count}} payments",
-    "titleFor": "Report for {{month}}",
-    "editExpenses": "Monthly expenses",
+    "titleFor": "Report for {{period}}",
+    "editExpenses": "Expenses for the period",
     "comment": "Comment for the director",
     "commentPh": "E.g. all reconciled with receipts…",
     "send": "Send to director",
@@ -1664,6 +1664,11 @@
     "whatToFix": "What to fix",
     "yourComment": "Your comment",
     "acceptedToast": "Accountant report accepted — numbers go into your SuperAdmin report",
-    "returnedToast": "Report returned to the accountant"
+    "returnedToast": "Report returned to the accountant",
+    "dateFrom": "From",
+    "dateTo": "To",
+    "pickDates": "Pick the “from” and “to” dates",
+    "fromAfterTo": "“From” is after “to”",
+    "toFuture": "“To” can’t be in the future"
   }
 }

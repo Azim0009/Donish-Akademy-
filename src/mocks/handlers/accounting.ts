@@ -2,8 +2,13 @@ import { http } from 'msw';
 import { ENDPOINTS } from '@/core/api/endpoints';
 import type { ReportExpense } from '@/core/types/models';
 import { EXPENSE_CATEGORIES } from '@/shared/lib/reports';
-import { ACC_BRANCH, accountantReports, monthIncome, newAccountantReport } from '../accounting';
-import { monthKey } from '../reports';
+import {
+  ACC_BRANCH,
+  accountantReports,
+  isoDay,
+  newAccountantReport,
+  periodIncome,
+} from '../accounting';
 import { resolveMe } from '../tasks';
 import { fail, ok, roleOf, url } from './utils';
 
@@ -17,16 +22,20 @@ export const accountingHandlers = [
     // приход черновиков обновляем: администратор мог принять новые оплаты
     accountantReports
       .filter((r) => r.status === 'draft' || r.status === 'returned')
-      .forEach((r) => Object.assign(r, monthIncome(r.month)));
+      .forEach((r) => Object.assign(r, periodIncome(r.dateFrom, r.dateTo)));
     return ok([...accountantReports].sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
   }),
   http.post(url(ENDPOINTS.accounting.reports), async ({ request }) => {
     if (!isAcc(request)) return fail(403, 'FORBIDDEN', 'Нет доступа');
-    const { month } = (await request.json()) as { month: string };
-    if (!/^\d{4}-\d{2}$/.test(month) || month > monthKey(0))
-      return fail(422, 'VALIDATION_ERROR', 'Неверный месяц');
+    const { dateFrom, dateTo } = (await request.json()) as { dateFrom: string; dateTo: string };
+    const re = /^\d{4}-\d{2}-\d{2}$/;
+    if (!re.test(dateFrom ?? '') || !re.test(dateTo ?? ''))
+      return fail(422, 'VALIDATION_ERROR', 'Выберите даты «с» и «по»');
+    if (dateFrom > dateTo) return fail(422, 'VALIDATION_ERROR', 'Дата «с» позже даты «по»');
+    if (dateTo > isoDay(new Date()))
+      return fail(422, 'VALIDATION_ERROR', 'Дата «по» не может быть в будущем');
     const me = resolveMe(request.headers.get('X-Mock-User'), 'accountant');
-    const r = newAccountantReport(month, me.name);
+    const r = newAccountantReport(dateFrom, dateTo, me.name);
     accountantReports.push(r);
     return ok(r, 201);
   }),
@@ -56,7 +65,7 @@ export const accountingHandlers = [
     if (!r) return fail(404, 'ENTITY_NOT_FOUND', 'Отчёт не найден');
     if (r.status === 'sent' || r.status === 'accepted')
       return fail(409, 'CONFLICT', 'Отчёт уже отправлен');
-    Object.assign(r, monthIncome(r.month), {
+    Object.assign(r, periodIncome(r.dateFrom, r.dateTo), {
       status: 'sent',
       sentAt: new Date().toISOString(),
       directorComment: null,

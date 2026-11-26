@@ -765,10 +765,14 @@ export type AccountantReportStatus = 'draft' | 'sent' | 'accepted' | 'returned';
 export interface AccountantReport {
   id: ID;
   branchId: ID;
+  /** месяц даты «по» — в отчёт директора за этот месяц подставляются цифры */
   month: string;
   status: AccountantReportStatus;
   accountantName: string;
-  /** приход за месяц — из оплат, которые принял администратор */
+  /** период отчёта «2026-11-01» … «2026-11-26» — бухгалтер выбирает сам */
+  dateFrom: string;
+  dateTo: string;
+  /** приход за период — из оплат, которые принял администратор */
   income: number;
   /** сколько оплат за месяц */
   paymentsCount: number;
