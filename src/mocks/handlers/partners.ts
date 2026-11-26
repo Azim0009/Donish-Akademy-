@@ -11,13 +11,19 @@ import { staffEmail } from '@/shared/lib/credentials';
 import { db } from '../db';
 import { setPassword } from '../passwords';
 import {
+  courseModules,
   monthlyIncome,
+  newPartnerLesson,
   partnerByUser,
   partnerCourses,
+  partnerLessons,
+  partnerModules,
   partners,
   partnerStudents,
   recountPartners,
+  syncLessonsCount,
 } from '../partners';
+import type { Lesson } from '@/core/types/models';
 import { fail, ok, url } from './utils';
 
 const meOf = (request: Request) => partnerByUser(request.headers.get('X-Mock-User'));
@@ -112,7 +118,153 @@ export const partnerHandlers = [
         'На курсе есть ученики — снимите его с публикации вместо удаления',
       );
     partnerCourses.splice(i, 1);
+    for (let k = partnerModules.length - 1; k >= 0; k--) {
+      if (partnerModules[k].courseId !== params.id) continue;
+      const mid = partnerModules[k].id;
+      for (let j = partnerLessons.length - 1; j >= 0; j--)
+        if (partnerLessons[j].moduleId === mid) partnerLessons.splice(j, 1);
+      partnerModules.splice(k, 1);
+    }
     recountPartners();
+    return ok(null);
+  }),
+  // --- Конструктор курса партнёра: модули и уроки ---
+  http.get(url('/partner/courses/:id/modules'), ({ params, request }) => {
+    const p = meOf(request);
+    const course = partnerCourses.find((c) => c.id === params.id && c.partnerId === p.id);
+    if (!course) return fail(404, 'ENTITY_NOT_FOUND', 'Курс не найден');
+    return ok({ course, modules: courseModules(course.id) });
+  }),
+  http.post(url('/partner/courses/:id/modules'), async ({ params, request }) => {
+    const p = meOf(request);
+    const course = partnerCourses.find((c) => c.id === params.id && c.partnerId === p.id);
+    if (!course) return fail(404, 'ENTITY_NOT_FOUND', 'Курс не найден');
+    const b = (await request.json()) as { title?: string; description?: string };
+    if (!b.title || b.title.trim().length < 2)
+      return fail(400, 'VALIDATION_ERROR', 'Название модуля — минимум 2 символа');
+    const order =
+      Math.max(0, ...partnerModules.filter((m) => m.courseId === course.id).map((m) => m.order)) +
+      1;
+    const mod = {
+      id: `pmodule_${Date.now()}`,
+      courseId: course.id,
+      title: b.title.trim(),
+      description: (b.description ?? '').trim(),
+      order,
+    };
+    partnerModules.push(mod);
+    return ok(mod);
+  }),
+  http.post(url('/partner/courses/:id/modules/reorder'), async ({ params, request }) => {
+    const p = meOf(request);
+    const course = partnerCourses.find((c) => c.id === params.id && c.partnerId === p.id);
+    if (!course) return fail(404, 'ENTITY_NOT_FOUND', 'Курс не найден');
+    const { ids } = (await request.json()) as { ids: string[] };
+    const mine = partnerModules.filter((m) => m.courseId === course.id);
+    if (!Array.isArray(ids) || ids.length !== mine.length || mine.some((m) => !ids.includes(m.id)))
+      return fail(400, 'VALIDATION_ERROR', 'Неверный порядок модулей');
+    ids.forEach((id, i) => {
+      const m = mine.find((x) => x.id === id);
+      if (m) m.order = i + 1;
+    });
+    return ok(courseModules(course.id));
+  }),
+  http.patch(url('/partner/modules/:id'), async ({ params, request }) => {
+    const p = meOf(request);
+    const mod = partnerModules.find((m) => m.id === params.id);
+    if (!mod || !partnerCourses.some((c) => c.id === mod.courseId && c.partnerId === p.id))
+      return fail(404, 'ENTITY_NOT_FOUND', 'Модуль не найден');
+    const b = (await request.json()) as { title?: string; description?: string };
+    if (b.title !== undefined) {
+      if (b.title.trim().length < 2)
+        return fail(400, 'VALIDATION_ERROR', 'Название модуля — минимум 2 символа');
+      mod.title = b.title.trim();
+      partnerLessons
+        .filter((l) => l.moduleId === mod.id)
+        .forEach((l) => (l.moduleTitle = mod.title));
+    }
+    if (b.description !== undefined) mod.description = b.description.trim();
+    return ok(mod);
+  }),
+  http.delete(url('/partner/modules/:id'), ({ params, request }) => {
+    const p = meOf(request);
+    const i = partnerModules.findIndex((m) => m.id === params.id);
+    const mod = partnerModules[i];
+    if (!mod || !partnerCourses.some((c) => c.id === mod.courseId && c.partnerId === p.id))
+      return fail(404, 'ENTITY_NOT_FOUND', 'Модуль не найден');
+    partnerModules.splice(i, 1);
+    for (let k = partnerLessons.length - 1; k >= 0; k--)
+      if (partnerLessons[k].moduleId === mod.id) partnerLessons.splice(k, 1);
+    partnerModules
+      .filter((m) => m.courseId === mod.courseId)
+      .sort((a, b) => a.order - b.order)
+      .forEach((m, k) => (m.order = k + 1));
+    syncLessonsCount(mod.courseId);
+    return ok(null);
+  }),
+  http.post(url('/partner/modules/:id/lessons'), async ({ params, request }) => {
+    const p = meOf(request);
+    const mod = partnerModules.find((m) => m.id === params.id);
+    if (!mod || !partnerCourses.some((c) => c.id === mod.courseId && c.partnerId === p.id))
+      return fail(404, 'ENTITY_NOT_FOUND', 'Модуль не найден');
+    const b = (await request.json()) as { title?: string; durationMinutes?: number };
+    if (!b.title || b.title.trim().length < 2)
+      return fail(400, 'VALIDATION_ERROR', 'Название урока — минимум 2 символа');
+    const dur = Number(b.durationMinutes) || 60;
+    if (dur < 5 || dur > 600)
+      return fail(400, 'VALIDATION_ERROR', 'Длительность от 5 до 600 минут');
+    const order = partnerLessons.filter((l) => l.moduleId === mod.id).length + 1;
+    const lesson = newPartnerLesson(mod, b.title.trim(), dur, order);
+    partnerLessons.push(lesson);
+    syncLessonsCount(mod.courseId);
+    return ok(lesson);
+  }),
+  http.get(url('/partner/lessons/:id'), ({ params, request }) => {
+    const p = meOf(request);
+    const l = partnerLessons.find((x) => x.id === params.id);
+    if (!l || !partnerCourses.some((c) => c.id === l.trackId && c.partnerId === p.id))
+      return fail(404, 'ENTITY_NOT_FOUND', 'Урок не найден');
+    return ok(l);
+  }),
+  http.put(url('/partner/lessons/:id'), async ({ params, request }) => {
+    const p = meOf(request);
+    const l = partnerLessons.find((x) => x.id === params.id);
+    if (!l || !partnerCourses.some((c) => c.id === l.trackId && c.partnerId === p.id))
+      return fail(404, 'ENTITY_NOT_FOUND', 'Урок не найден');
+    const b = (await request.json()) as Partial<Lesson>;
+    if (b.title !== undefined && b.title.trim().length < 2)
+      return fail(400, 'VALIDATION_ERROR', 'Название урока — минимум 2 символа');
+    if (b.durationMinutes !== undefined && !(b.durationMinutes >= 5 && b.durationMinutes <= 600))
+      return fail(400, 'VALIDATION_ERROR', 'Длительность от 5 до 600 минут');
+    if (b.quiz?.some((q) => !q.question.trim() || q.options.some((o) => !o.trim())))
+      return fail(400, 'VALIDATION_ERROR', 'В тесте заполните вопрос и все варианты ответа');
+    const allowed: (keyof Lesson)[] = [
+      'title',
+      'durationMinutes',
+      'theoryContent',
+      'videoUrl',
+      'exampleCode',
+      'exercise',
+      'quiz',
+    ];
+    allowed.forEach((k) => {
+      if (b[k] !== undefined) (l as unknown as Record<string, unknown>)[k] = b[k];
+    });
+    if (typeof l.title === 'string') l.title = l.title.trim();
+    return ok(l);
+  }),
+  http.delete(url('/partner/lessons/:id'), ({ params, request }) => {
+    const p = meOf(request);
+    const i = partnerLessons.findIndex((x) => x.id === params.id);
+    const l = partnerLessons[i];
+    if (!l || !partnerCourses.some((c) => c.id === l.trackId && c.partnerId === p.id))
+      return fail(404, 'ENTITY_NOT_FOUND', 'Урок не найден');
+    partnerLessons.splice(i, 1);
+    partnerLessons
+      .filter((x) => x.moduleId === l.moduleId)
+      .sort((a, b) => a.order - b.order)
+      .forEach((x, k) => (x.order = k + 1));
+    syncLessonsCount(l.trackId);
     return ok(null);
   }),
   http.get(url(ENDPOINTS.partner.students), ({ request }) => {
@@ -145,7 +297,15 @@ export const partnerHandlers = [
       specialty: p.specialty,
       bio: p.bio,
       code: p.code,
-      courses: partnerCourses.filter((c) => c.partnerId === p.id && c.status === 'published'),
+      courses: partnerCourses
+        .filter((c) => c.partnerId === p.id && c.status === 'published')
+        .map((c) => ({
+          ...c,
+          program: courseModules(c.id).map((m) => ({
+            title: m.title,
+            lessons: m.lessons.map((l) => l.title),
+          })),
+        })),
     });
   }),
   http.post(url('/public/partners/:code/apply'), async ({ params, request }) => {

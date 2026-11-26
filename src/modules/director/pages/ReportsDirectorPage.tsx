@@ -20,6 +20,7 @@ import {
   Select,
   toast,
 } from '@/shared/ui';
+import { AccountantReportsSection } from '../components/AccountantReportsSection';
 
 /** Отчёты директора: каждый месяц — цифры филиала, финансы и итоги. Отправляются SuperAdmin */
 export default function ReportsDirectorPage() {
@@ -45,6 +46,8 @@ export default function ReportsDirectorPage() {
           </Button>
         }
       />
+
+      <AccountantReportsSection />
 
       {(!cur || cur.status === 'draft' || cur.status === 'returned') && (
         <div

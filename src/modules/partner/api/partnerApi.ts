@@ -3,6 +3,9 @@ import { api } from '@/core/api/axiosClient';
 import { ENDPOINTS } from '@/core/api/endpoints';
 import type { ApiResponse } from '@/core/api/types';
 import type {
+  Lesson,
+  PartnerCourseBuilder,
+  PartnerModule,
   PartnerCourse,
   PartnerCourseInput,
   PartnerDashboard,
@@ -60,3 +63,34 @@ export const useApplyToPartner = (code: string) =>
     mutationFn: (b: { name: string; phone: string; courseId: string }) =>
       api.post(ENDPOINTS.publicPartner.apply(code), b),
   });
+
+// --- Конструктор курса: модули и уроки ---
+export const usePartnerCourseBuilder = (courseId: string) =>
+  useQuery({
+    queryKey: ['partner', 'builder', courseId],
+    queryFn: () => get<PartnerCourseBuilder>(E.courseModules(courseId)),
+  });
+export const useCreateModule = (courseId: string) =>
+  usePartnerMutation((b: { title: string; description: string }) =>
+    api.post<ApiResponse<PartnerModule>>(E.courseModules(courseId), b).then((r) => r.data.data),
+  );
+export const useUpdateModule = () =>
+  usePartnerMutation(({ id, ...b }: { id: string; title: string; description: string }) =>
+    api.patch(E.module(id), b),
+  );
+export const useDeleteModule = () => usePartnerMutation((id: string) => api.delete(E.module(id)));
+export const useReorderModules = (courseId: string) =>
+  usePartnerMutation((ids: string[]) => api.post(E.reorderModules(courseId), { ids }));
+export const useCreatePartnerLesson = () =>
+  usePartnerMutation(
+    ({ moduleId, ...b }: { moduleId: string; title: string; durationMinutes: number }) =>
+      api.post<ApiResponse<Lesson>>(E.moduleLessons(moduleId), b).then((r) => r.data.data),
+  );
+export const useDeletePartnerLesson = () =>
+  usePartnerMutation((id: string) => api.delete(E.lesson(id)));
+export const usePartnerLesson = (id: string) =>
+  useQuery({ queryKey: ['partner', 'lesson', id], queryFn: () => get<Lesson>(E.lesson(id)) });
+export const useSavePartnerLesson = (id: string) =>
+  usePartnerMutation((b: Lesson) =>
+    api.put<ApiResponse<Lesson>>(E.lesson(id), b).then((r) => r.data.data),
+  );

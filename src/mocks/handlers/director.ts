@@ -6,6 +6,7 @@ import { ENDPOINTS } from '@/core/api/endpoints';
 import type { Group, GroupFormat, Lesson, UserListItem } from '@/core/types/models';
 import { MAIN_TRACK } from '@/core/config/course';
 import { db, getLesson, saveLessonEdit, stats } from '../db';
+import { acceptedAccountantReport } from '../accounting';
 import { deletePerson, makeContract, updatePerson } from '../db';
 import { ok, fail, url, query, matches } from './utils';
 import { pct, revenue, monthRevenue } from '../finance';
@@ -120,6 +121,8 @@ export const directorHandlers = [
       .filter((r) => r.branchId === BRANCH)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
     const now = new Date().toISOString();
+    // принятый отчёт бухгалтера за этот месяц — деньги берём из него
+    const acc = acceptedAccountantReport(month);
     const rep: BranchReport = {
       id: `rep_${BRANCH}_${month}_${Date.now()}`,
       branchId: BRANCH,
@@ -128,10 +131,12 @@ export const directorHandlers = [
       month,
       status: 'draft',
       metrics: liveMetrics(),
-      income: monthRevenue(BRANCH, month),
-      expenses: prev
-        ? prev.expenses.map((e, i) => ({ ...e, id: `exp_${Date.now()}_${i}` }))
-        : defaultExpenses(branch),
+      income: acc ? acc.income : monthRevenue(BRANCH, month),
+      expenses: acc
+        ? acc.expenses.map((e, i) => ({ ...e, id: `exp_${Date.now()}_${i}` }))
+        : prev
+          ? prev.expenses.map((e, i) => ({ ...e, id: `exp_${Date.now()}_${i}` }))
+          : defaultExpenses(branch),
       achievements: '',
       problems: '',
       plans: '',

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiBookOpen, FiEdit2, FiEye, FiEyeOff, FiPlus, FiTrash2 } from 'react-icons/fi';
+import { FiBookOpen, FiEdit2, FiEye, FiEyeOff, FiLayers, FiPlus, FiTrash2 } from 'react-icons/fi';
+import { generatePath, Link } from 'react-router-dom';
+import { PATHS } from '@/core/config/paths';
 import { getApiErrorMessage } from '@/core/api/axiosClient';
 import type { PartnerCourse } from '@/core/types/models';
 import { GroupFormatBadge } from '@/shared/components/groups/GroupFormatBadge';
@@ -77,7 +79,12 @@ export default function PartnerCoursesPage() {
                 <Badge>{t(`partner.level.${c.level}`)}</Badge>
               </div>
               <div>
-                <h3 className="h-display text-lg leading-tight">{c.title}</h3>
+                <Link
+                  to={generatePath(PATHS.partner.course, { courseId: c.id })}
+                  className="h-display text-lg leading-tight hover:text-brand-strong"
+                >
+                  {c.title}
+                </Link>
                 <p className="mt-1 line-clamp-2 text-sm text-muted">{c.description}</p>
               </div>
               <dl className="grid grid-cols-3 gap-2 text-sm">
@@ -108,6 +115,14 @@ export default function PartnerCoursesPage() {
                     ? t('partner.course.unpublish')
                     : t('partner.course.publish')}
                 </Button>
+                <Link
+                  to={generatePath(PATHS.partner.course, { courseId: c.id })}
+                  className="inline-flex"
+                >
+                  <Button size="sm" variant="secondary" leftIcon={<FiLayers />} tabIndex={-1}>
+                    {t('partner.builder.open')}
+                  </Button>
+                </Link>
                 <Button size="sm" variant="ghost" leftIcon={<FiEdit2 />} onClick={() => setEdit(c)}>
                   {t('common.edit')}
                 </Button>

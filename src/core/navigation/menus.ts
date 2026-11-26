@@ -315,6 +315,12 @@ export const MENUS: Record<Role, MenuItem[]> = {
       section: 'accountant.home',
     },
     {
+      to: PATHS.accountant.reports,
+      labelKey: 'pages.accountant.reports',
+      icon: FiFileText,
+      section: 'accountant.reports',
+    },
+    {
       to: PATHS.accountant.inventory,
       labelKey: 'pages.accountant.inventory',
       icon: FiArchive,

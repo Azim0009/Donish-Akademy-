@@ -7,6 +7,9 @@ import { monthKey } from './reports';
 const BRANCH = 'branch_dushanbe';
 let seeded = false;
 const list: Payment[] = [];
+let receiptSeq = 0;
+/** Сквозной номер квитанции филиала */
+export const nextReceiptNo = () => `DA-${new Date().getFullYear()}-${String(++receiptSeq).padStart(5, '0')}`;
 const METHODS: PaymentMethod[] = ['cash', 'cash', 'card', 'transfer'];
 
 export function allPayments(): Payment[] {
@@ -17,12 +20,13 @@ export function allPayments(): Payment[] {
     db.users.find((u) => u.role === 'administrator' && u.branchId === BRANCH)?.name ??
     'Администратор';
   students.forEach((s, i) => {
+    const group = db.groups.find((g) => g.id === s.groupId)?.name ?? null;
     // прошлый месяц: 9 из 10 оплатили
     if (i % 10 !== 3)
-      list.push(pay(s.id, s.name, monthKey(1), MONTHLY_FEE, i, 25 + (i % 5), admin));
+      list.push(pay(s.id, s.name, group, monthKey(1), MONTHLY_FEE, i, 25 + (i % 5), admin));
     // текущий: ~60% полностью, ~15% частично
-    if (i % 7 < 4) list.push(pay(s.id, s.name, monthKey(0), MONTHLY_FEE, i, 1 + (i % 9), admin));
-    else if (i % 7 === 4) list.push(pay(s.id, s.name, monthKey(0), 300, i, 3, admin));
+    if (i % 7 < 4) list.push(pay(s.id, s.name, group, monthKey(0), MONTHLY_FEE, i, 1 + (i % 9), admin));
+    else if (i % 7 === 4) list.push(pay(s.id, s.name, group, monthKey(0), 300, i, 3, admin));
   });
   return list;
 }
@@ -30,6 +34,7 @@ export function allPayments(): Payment[] {
 function pay(
   studentId: string,
   studentName: string,
+  groupName: string | null,
   month: string,
   amount: number,
   i: number,
@@ -55,5 +60,9 @@ function pay(
     note: '',
     receivedByName: admin,
     createdAt: when.toISOString(),
+    receiptNo: nextReceiptNo(),
+    branchName: 'Душанбе',
+    groupName,
+    checkPhoto: null,
   };
 }

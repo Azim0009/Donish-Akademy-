@@ -83,5 +83,6 @@ export const useAcceptPayment = () =>
       amount: number;
       method: PaymentMethod;
       note?: string;
+      checkPhoto?: string | null;
     }) => post<Payment>(E.payments, b),
   );

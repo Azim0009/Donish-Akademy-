@@ -34,6 +34,11 @@ export const ENDPOINTS = {
     course: (id: string) => `/partner/courses/${id}`,
     students: '/partner/students',
     student: (id: string) => `/partner/students/${id}`,
+    courseModules: (id: string) => `/partner/courses/${id}/modules`,
+    reorderModules: (id: string) => `/partner/courses/${id}/modules/reorder`,
+    module: (id: string) => `/partner/modules/${id}`,
+    moduleLessons: (id: string) => `/partner/modules/${id}/lessons`,
+    lesson: (id: string) => `/partner/lessons/${id}`,
   },
   ai: { ask: '/ai/ask' },
   publicPartner: {
@@ -88,6 +93,14 @@ export const ENDPOINTS = {
   },
   // --- Сотрудники филиала (бухгалтер, уборщик, продажи) ---
   staff: { home: '/staff/home' },
+  accounting: {
+    reports: '/accountant/reports',
+    report: (id: string) => `/accountant/reports/${id}`,
+    send: (id: string) => `/accountant/reports/${id}/send`,
+    /** директор: отчёты бухгалтера */
+    directorList: '/director/accountant-reports',
+    review: (id: string) => `/director/accountant-reports/${id}/review`,
+  },
   inventory: {
     list: '/accountant/inventory',
     item: (id: string) => `/accountant/inventory/${id}`,

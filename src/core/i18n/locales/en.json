@@ -28,7 +28,9 @@
     "saveChanges": "Save changes",
     "saved": "Changes saved",
     "search": "Search",
-    "vsLastMonth": "vs last month"
+    "vsLastMonth": "vs last month",
+    "save": "Save",
+    "create": "Create"
   },
   "errors": {
     "forbidden": "Access denied",
@@ -142,7 +144,8 @@
       "students": "Students"
     },
     "accountant": {
-      "inventory": "Inventory"
+      "inventory": "Inventory",
+      "reports": "Reports"
     }
   },
   "validation": {
@@ -1441,7 +1444,40 @@
       "status": {
         "draft": "Draft",
         "published": "Published"
-      }
+      },
+      "titleError2": "At least 2 characters"
+    },
+    "builder": {
+      "open": "Modules & lessons",
+      "summary": "Modules: {{modules}} · lessons: {{lessons}}. Build the course program: modules with lessons inside.",
+      "addModule": "Add module",
+      "editModule": "Edit module",
+      "moduleTitle": "Module title",
+      "moduleDescription": "Short description",
+      "moduleCreated": "Module added",
+      "moduleSaved": "Module saved",
+      "noModules": "No modules yet",
+      "noModulesHint": "Start with the first module, e.g. “Basics”, and add lessons to it.",
+      "lessonsCount_one": "{{count}} lesson",
+      "lessonsCount_other": "{{count}} lessons",
+      "up": "Move up",
+      "down": "Move down",
+      "toggle": "Show lessons",
+      "noLessons": "No lessons in this module yet.",
+      "minutes": "{{n}} min",
+      "addLesson": "Add lesson",
+      "createLesson": "Create and fill in",
+      "lessonHint": "Module “{{module}}”. The lesson builder opens after creating.",
+      "lessonTitle": "Lesson title",
+      "duration": "Minutes",
+      "durationError": "5 to 600",
+      "lessonCreated": "Lesson created — fill in theory, video and homework",
+      "deleteModule": "Delete module?",
+      "deleteModuleHint": "Module “{{title}}” and all its lessons will be deleted.",
+      "deleteLesson": "Delete lesson?",
+      "deleteLessonHint": "Lesson “{{title}}” will be deleted.",
+      "cannotUndo": "This cannot be undone.",
+      "deleted": "Deleted"
     }
   },
   "partnerPage": {
@@ -1462,7 +1498,9 @@
     "doneText": "{{name}} will contact you soon.",
     "notFound": "Page not found",
     "notFoundHint": "The link is wrong or the teacher no longer accepts students.",
-    "toHome": "Go home"
+    "toHome": "Go home",
+    "program_one": "Program: {{count}} module",
+    "program_other": "Program: {{count}} modules"
   },
   "ai": {
     "mentorTitle": "AI mentor",
@@ -1560,5 +1598,72 @@
     "resultTitle": "Check complete",
     "allFoundText": "All property is in place.",
     "missingText": "Not found — check and report to the director:"
+  },
+  "receipt": {
+    "title": "Receipt No. {{no}}",
+    "modalTitle": "Payment receipt",
+    "student": "Student",
+    "group": "Group",
+    "branch": "Branch",
+    "purpose": "Purpose",
+    "purposeText": "Tuition for {{month}}",
+    "method": "Payment method",
+    "note": "Comment",
+    "monthTotal": "Paid this month",
+    "left": "Remaining",
+    "fullyPaid": "Paid in full",
+    "amount": "Amount",
+    "receivedBy": "Received by",
+    "signature": "Signature",
+    "stamp": "Paid",
+    "thanks": "Thank you for studying at Donish Academy!",
+    "print": "Print / PDF",
+    "download": "Download image",
+    "send": "Send to student",
+    "printHint": "“Print / PDF”: on paper or “Save as PDF”. “Send to student”: on a phone the receipt goes as an image via WhatsApp or Telegram; on a computer the image downloads and the student’s chat opens.",
+    "attachHint": "Receipt image downloaded — attach it in the WhatsApp chat that opened",
+    "waText": "Hello! Donish Academy payment receipt No. {{no}} — {{name}}. File attached.",
+    "imageError": "Could not create the receipt image",
+    "list": "Receipts",
+    "open": "Open",
+    "withCheck": "check photo attached",
+    "checkPhoto": "Check photo",
+    "checkPreview": "Check photo",
+    "removePhoto": "Remove photo",
+    "addPhoto": "Add check photo",
+    "photoHint": "Transfer screenshot or terminal check photo — JPG, PNG",
+    "photoLoading": "Loading…",
+    "photoRequired": "A transfer needs a check photo",
+    "onlyImage": "Only images can be uploaded",
+    "showCheck": "Show check photo",
+    "hideCheck": "Hide check photo",
+    "checkAlt": "Check for receipt {{no}}"
+  },
+  "accReports": {
+    "description": "Monthly branch money report for the director. Income fills in from the administrator’s payments; you enter the expenses.",
+    "empty": "No reports yet",
+    "newHint": "Monthly income fills in from payments. Expenses carry over from the last report and can be edited.",
+    "created": "Report created — check expenses and send it to the director",
+    "income": "Income",
+    "expenses": "Expenses",
+    "balance": "Balance",
+    "paymentsCount_one": "{{count}} payment",
+    "paymentsCount_other": "{{count}} payments",
+    "titleFor": "Report for {{month}}",
+    "editExpenses": "Monthly expenses",
+    "comment": "Comment for the director",
+    "commentPh": "E.g. all reconciled with receipts…",
+    "send": "Send to director",
+    "sentToast": "Report sent to the director",
+    "directorSays": "Director",
+    "directorTitle": "Accountant reports",
+    "directorHint": "Accept a report — its income and expenses fill into your SuperAdmin report for that month.",
+    "nothingNew": "No new reports from the accountant.",
+    "accept": "Accept",
+    "return": "Return for fixes",
+    "whatToFix": "What to fix",
+    "yourComment": "Your comment",
+    "acceptedToast": "Accountant report accepted — numbers go into your SuperAdmin report",
+    "returnedToast": "Report returned to the accountant"
   }
 }

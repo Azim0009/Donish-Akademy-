@@ -101,7 +101,8 @@ export function PanelLayout({ titleKey, basePath, menu, topNav }: Props) {
         </div>
       </nav>
 
-      {user && (
+      {/* партнёр не относится к филиалу — плашку не показываем */}
+      {user && user.role !== 'partner' && (
         <div className="m-3 rounded-card bg-sunken px-4 py-3">
           <p className="text-xs text-muted">{t('layout.branch')}</p>
           <p className="text-sm font-medium">

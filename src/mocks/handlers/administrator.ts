@@ -6,7 +6,7 @@ import type { Payment, PaymentMethod, PaymentRow, UserListItem } from '@/core/ty
 import { isStrongPassword } from '@/shared/lib/credentials';
 import { MONTHLY_FEE } from '@/shared/lib/payments';
 import { allLeads } from '../leads';
-import { allPayments } from '../payments';
+import { allPayments, nextReceiptNo } from '../payments';
 import { setPassword } from '../passwords';
 import { resolveMe } from '../tasks';
 import { roleOf } from './utils';
@@ -158,6 +158,7 @@ export const administratorHandlers = [
       amount: number;
       method: PaymentMethod;
       note?: string;
+      checkPhoto?: string | null;
     };
     const u = db.users.find(
       (x) => x.id === b.studentId && x.role === 'student' && x.branchId === BRANCH,
@@ -166,6 +167,13 @@ export const administratorHandlers = [
     if (!(b.amount > 0) || b.amount > 100000)
       return fail(422, 'VALIDATION_ERROR', 'Неверная сумма');
     if (!/^\d{4}-\d{2}$/.test(b.month)) return fail(422, 'VALIDATION_ERROR', 'Неверный месяц');
+    if (!['cash', 'card', 'transfer'].includes(b.method)) return fail(422, 'VALIDATION_ERROR', 'Неверный способ оплаты');
+    // перевод без фото чека не принимаем: по чеку потом сверяют деньги
+    if (b.method === 'transfer' && !b.checkPhoto)
+      return fail(422, 'VALIDATION_ERROR', 'Прикрепите фото чека перевода');
+    if (b.checkPhoto && (!b.checkPhoto.startsWith('data:image/') || b.checkPhoto.length > 3_000_000))
+      return fail(422, 'VALIDATION_ERROR', 'Фото чека: только картинка до 2 МБ');
+    allPayments(); // номера квитанций идут после демо-оплат
     const p: Payment = {
       id: `pay_${Date.now()}`,
       studentId: u.id,
@@ -176,6 +184,10 @@ export const administratorHandlers = [
       note: b.note?.trim() ?? '',
       receivedByName: me.name,
       createdAt: new Date().toISOString(),
+      receiptNo: nextReceiptNo(),
+      branchName: me.branchName ?? 'Душанбе',
+      groupName: db.groups.find((g) => g.id === u.groupId)?.name ?? null,
+      checkPhoto: b.method === 'cash' ? null : (b.checkPhoto ?? null),
     };
     allPayments().push(p);
     return ok(p);

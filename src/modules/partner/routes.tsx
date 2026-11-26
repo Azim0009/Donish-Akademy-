@@ -8,6 +8,8 @@ import { MENUS } from '@/core/navigation/menus';
 const PartnerDashboardPage = lazy(() => import('./pages/PartnerDashboardPage'));
 const PartnerCoursesPage = lazy(() => import('./pages/PartnerCoursesPage'));
 const PartnerStudentsPage = lazy(() => import('./pages/PartnerStudentsPage'));
+const PartnerCourseBuilderPage = lazy(() => import('./pages/PartnerCourseBuilderPage'));
+const PartnerLessonEditPage = lazy(() => import('./pages/PartnerLessonEditPage'));
 const NotificationsPage = lazy(() => import('@/modules/notifications/pages/NotificationsPage'));
 const AccountSettingsPage = lazy(() => import('@/modules/account/pages/AccountSettingsPage'));
 
@@ -22,6 +24,8 @@ export const partnerRoutes: RouteObject = {
   children: [
     { index: true, element: <PartnerDashboardPage /> },
     { path: PATHS.partner.courses, element: <PartnerCoursesPage /> },
+    { path: PATHS.partner.course, element: <PartnerCourseBuilderPage /> },
+    { path: PATHS.partner.lesson, element: <PartnerLessonEditPage /> },
     { path: PATHS.partner.students, element: <PartnerStudentsPage /> },
     { path: PATHS.partner.notifications, element: <NotificationsPage /> },
     { path: PATHS.partner.settings, element: <AccountSettingsPage /> },

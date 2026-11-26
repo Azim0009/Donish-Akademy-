@@ -2,20 +2,25 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   FiAlertCircle,
+  FiCamera,
   FiCheckCircle,
   FiDollarSign,
+  FiFileText,
   FiMessageCircle,
   FiPlus,
   FiSearch,
   FiUsers,
+  FiX,
 } from 'react-icons/fi';
-import type { PaymentMethod, PaymentRow, PaymentState } from '@/core/types/models';
+import type { Payment, PaymentMethod, PaymentRow, PaymentState } from '@/core/types/models';
 import { formatDateTime, formatMonth, formatMoney } from '@/core/utils/format';
 import { getApiErrorMessage } from '@/core/api/axiosClient';
 import { whatsappLink } from '@/shared/lib/credentials';
 import { PAYMENT_METHODS, paymentStateTone } from '@/shared/lib/payments';
 import { lastMonths } from '@/shared/lib/reports';
 import { KpiCard } from '@/shared/components/dashboard/KpiCard';
+import { ReceiptModal } from '@/shared/components/receipt/ReceiptModal';
+import { compressImage } from '@/shared/lib/image';
 import {
   Avatar,
   Badge,
@@ -47,6 +52,7 @@ export default function AdministratorPaymentsPage() {
   const [filter, setFilter] = useState<Filter>('unpaid');
   const [search, setSearch] = useState('');
   const [paying, setPaying] = useState<PaymentRow | null>(null);
+  const [receiptsOf, setReceiptsOf] = useState<PaymentRow | null>(null);
   const { data, isLoading, isError, refetch } = usePayments(month);
 
   if (isLoading) return <Loader />;
@@ -174,6 +180,11 @@ export default function AdministratorPaymentsPage() {
                       </IconButton>
                     </a>
                   )}
+                  {r.payments.length > 0 && (
+                    <IconButton label={t('receipt.list')} onClick={() => setReceiptsOf(r)}>
+                      <FiFileText />
+                    </IconButton>
+                  )}
                   {r.state !== 'paid' && (
                     <Button size="sm" leftIcon={<FiPlus />} onClick={() => setPaying(r)}>
                       {t('payments.accept')}
@@ -186,6 +197,7 @@ export default function AdministratorPaymentsPage() {
         )}
       </Card>
 
+      {receiptsOf && <ReceiptsListModal row={receiptsOf} fee={data.fee} onClose={() => setReceiptsOf(null)} />}
       {paying && (
         <AcceptPaymentModal
           row={paying}
@@ -198,6 +210,57 @@ export default function AdministratorPaymentsPage() {
   );
 }
 
+/** Сколько было оплачено за месяц на момент этой оплаты (для квитанции) */
+const paidUpTo = (payments: Payment[], p: Payment) =>
+  payments
+    .filter((x) => x.month === p.month && x.createdAt <= p.createdAt)
+    .reduce((sum, x) => sum + x.amount, 0);
+
+/** Все квитанции ученика за месяц */
+function ReceiptsListModal({ row, fee, onClose }: { row: PaymentRow; fee: number; onClose: () => void }) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState<Payment | null>(null);
+  if (open)
+    return (
+      <ReceiptModal
+        payment={open}
+        fee={fee}
+        paidTotal={paidUpTo(row.payments, open)}
+        phone={row.phone}
+        onClose={() => setOpen(null)}
+      />
+    );
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title={t('receipt.list')}
+      description={row.name}
+      footer={<Button onClick={onClose}>{t('common.close')}</Button>}
+    >
+      <ul className="flex flex-col divide-y divide-line">
+        {row.payments.map((p) => (
+          <li key={p.id} className="flex items-center gap-3 py-2.5">
+            <div className="min-w-0 flex-1">
+              <p className="font-medium">
+                {p.receiptNo} · {formatMoney(p.amount)}
+              </p>
+              <p className="text-xs text-muted">
+                {formatDateTime(p.createdAt)} · {t(`payments.methods.${p.method}`)}
+                {p.checkPhoto && ` · ${t('receipt.withCheck')}`}
+              </p>
+            </div>
+            <Button size="sm" variant="secondary" leftIcon={<FiFileText />} onClick={() => setOpen(p)}>
+              {t('receipt.open')}
+            </Button>
+          </li>
+        ))}
+      </ul>
+    </Modal>
+  );
+}
+
+/** Принять оплату: сумма, способ, фото чека (для перевода — обязательно), потом квитанция */
 function AcceptPaymentModal({
   row,
   month,
@@ -214,54 +277,47 @@ function AcceptPaymentModal({
   const [amount, setAmount] = useState(String(Math.max(0, fee - row.paid)));
   const [method, setMethod] = useState<PaymentMethod>('cash');
   const [note, setNote] = useState('');
-  const [done, setDone] = useState<number | null>(null);
+  const [photo, setPhoto] = useState<string | null>(null);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [tried, setTried] = useState(false);
+  const [done, setDone] = useState<Payment | null>(null);
   const n = Number(amount);
   const bad = !(n > 0) || n > 100000;
+  const needPhoto = method === 'transfer' && !photo;
 
-  const submit = () =>
+  const pick = async (file: File | undefined) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return toast(t('receipt.onlyImage'), 'error');
+    setPhotoBusy(true);
+    try {
+      setPhoto(await compressImage(file));
+    } catch {
+      toast(t('receipt.onlyImage'), 'error');
+    } finally {
+      setPhotoBusy(false);
+    }
+  };
+
+  const submit = () => {
+    setTried(true);
+    if (bad || needPhoto) return;
     accept.mutate(
-      { studentId: row.studentId, month, amount: n, method, note },
+      { studentId: row.studentId, month, amount: n, method, note, checkPhoto: method === 'cash' ? null : photo },
       {
-        onSuccess: (p) => (
-          toast(t('payments.accepted', { sum: formatMoney(p.amount) }), 'success'),
-          setDone(p.amount)
-        ),
+        onSuccess: (p) => {
+          toast(t('payments.accepted', { sum: formatMoney(p.amount) }), 'success');
+          setDone(p);
+        },
         onError: (e) => toast(getApiErrorMessage(e), 'error'),
       },
     );
+  };
 
-  if (done !== null) {
-    const receipt = t('payments.receiptText', {
-      name: row.name,
-      sum: formatMoney(done),
-      month: formatMonth(month),
-      total: formatMoney(row.paid + done),
-      fee: formatMoney(fee),
-    });
+  if (done)
     return (
-      <Modal
-        open
-        onClose={onClose}
-        title={t('payments.acceptedTitle')}
-        footer={<Button onClick={onClose}>{t('common.close')}</Button>}
-      >
-        <div className="flex flex-col items-start gap-4">
-          <p className="flex items-center gap-2 text-sm">
-            <FiCheckCircle className="text-xl text-brand" />{' '}
-            {t('payments.accepted', { sum: formatMoney(done) })} — {row.name}
-          </p>
-          <pre className="w-full whitespace-pre-wrap rounded-ctl bg-sunken p-3 font-sans text-sm">
-            {receipt}
-          </pre>
-          <a href={whatsappLink(row.phone, receipt)} target="_blank" rel="noreferrer">
-            <Button variant="secondary" leftIcon={<FiMessageCircle />}>
-              {t('payments.sendReceipt')}
-            </Button>
-          </a>
-        </div>
-      </Modal>
+      <ReceiptModal payment={done} fee={fee} paidTotal={row.paid + done.amount} phone={row.phone} onClose={onClose} />
     );
-  }
+
   return (
     <Modal
       open
@@ -273,7 +329,7 @@ function AcceptPaymentModal({
           <Button variant="secondary" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button onClick={submit} disabled={bad} loading={accept.isPending}>
+          <Button onClick={submit} disabled={bad || photoBusy} loading={accept.isPending}>
             {t('payments.accept')}
           </Button>
         </>
@@ -298,6 +354,46 @@ function AcceptPaymentModal({
             options={PAYMENT_METHODS.map((m) => ({ value: m, label: t(`payments.methods.${m}`) }))}
           />
         </div>
+        {method !== 'cash' && (
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[13px] font-medium">
+              {t('receipt.checkPhoto')}
+              {method === 'transfer' && <span className="text-danger"> *</span>}
+            </span>
+            {photo ? (
+              <div className="relative w-fit">
+                <img src={photo} alt={t('receipt.checkPreview')} className="max-h-48 rounded-ctl border border-line object-contain" />
+                <IconButton
+                  label={t('receipt.removePhoto')}
+                  onClick={() => setPhoto(null)}
+                  className="absolute right-1 top-1 bg-surface/90"
+                >
+                  <FiX />
+                </IconButton>
+              </div>
+            ) : (
+              <label
+                className={`flex cursor-pointer flex-col items-center gap-1 rounded-ctl border-2 border-dashed px-4 py-5 text-center text-sm transition-colors hover:border-brand hover:bg-brand-soft/40 ${
+                  tried && needPhoto ? 'border-danger' : 'border-line'
+                }`}
+              >
+                <FiCamera className="text-xl text-muted" aria-hidden />
+                <span className="font-medium">{photoBusy ? t('receipt.photoLoading') : t('receipt.addPhoto')}</span>
+                <span className="text-xs text-muted">{t('receipt.photoHint')}</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={(e) => {
+                    void pick(e.target.files?.[0]);
+                    e.target.value = '';
+                  }}
+                />
+              </label>
+            )}
+            {tried && needPhoto && <span className="text-[13px] text-danger">{t('receipt.photoRequired')}</span>}
+          </div>
+        )}
         <Input
           label={t('payments.note')}
           value={note}

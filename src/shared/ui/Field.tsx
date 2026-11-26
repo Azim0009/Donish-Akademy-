@@ -1,4 +1,4 @@
-import { forwardRef, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react';
+import { forwardRef, useId, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react';
 import clsx from 'clsx';
 
 const control =
@@ -42,7 +42,9 @@ type InputProps = InputHTMLAttributes<HTMLInputElement> & {
 };
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(({ label, hint, error, leftIcon, rightSlot, id, className, ...props }, ref) => {
-  const inputId = id ?? props.name;
+  // без id подпись не привязана к полю — берём автоматический
+  const autoId = useId();
+  const inputId = id ?? props.name ?? autoId;
   return (
     <Field label={label} hint={hint} error={error} htmlFor={inputId} className={className}>
       <div className="relative">
@@ -64,7 +66,9 @@ Input.displayName = 'Input';
 type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: string; hint?: string; error?: string };
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({ label, hint, error, id, className, ...props }, ref) => {
-  const inputId = id ?? props.name;
+  // без id подпись не привязана к полю — берём автоматический
+  const autoId = useId();
+  const inputId = id ?? props.name ?? autoId;
   return (
     <Field label={label} hint={hint} error={error} htmlFor={inputId} className={className}>
       <textarea id={inputId} ref={ref} className={clsx(control, 'min-h-[110px] py-2.5 leading-6', error && 'border-danger')} {...props} />
@@ -83,7 +87,9 @@ type SelectProps = SelectHTMLAttributes<HTMLSelectElement> & {
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ label, hint, error, options, placeholder, id, className, ...props }, ref) => {
-    const inputId = id ?? props.name;
+    // без id подпись не привязана к полю — берём автоматический
+  const autoId = useId();
+  const inputId = id ?? props.name ?? autoId;
     return (
       <Field label={label} hint={hint} error={error} htmlFor={inputId} className={className}>
         <select id={inputId} ref={ref} className={clsx(control, 'h-10 cursor-pointer pr-8', error && 'border-danger')} {...props}>

@@ -86,6 +86,25 @@ export default function PartnerPublicPage() {
                 </div>
                 <h3 className="h-display text-xl leading-tight">{c.title}</h3>
                 <p className="text-sm text-muted">{c.description}</p>
+                {c.program.length > 0 && (
+                  <details className="rounded-ctl border border-line px-3 py-2 text-sm [&[open]>summary]:mb-2">
+                    <summary className="cursor-pointer font-medium text-brand-strong">
+                      {t('partnerPage.program', { count: c.program.length })}
+                    </summary>
+                    <ol className="flex flex-col gap-2">
+                      {c.program.map((m, i) => (
+                        <li key={i}>
+                          <p className="font-medium">
+                            {i + 1}. {m.title}
+                          </p>
+                          {m.lessons.length > 0 && (
+                            <p className="text-xs text-muted">{m.lessons.join(' · ')}</p>
+                          )}
+                        </li>
+                      ))}
+                    </ol>
+                  </details>
+                )}
                 <p className="flex items-center gap-1.5 text-sm">
                   <FiClock className="text-muted" aria-hidden />
                   {t('partner.course.months', { count: c.durationMonths })} ·{' '}

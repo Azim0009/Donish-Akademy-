@@ -518,6 +518,12 @@ export interface Payment {
   note: string;
   receivedByName: string;
   createdAt: string;
+  /** Номер квитанции: DA-2026-00001 */
+  receiptNo: string;
+  branchName: string;
+  groupName: string | null;
+  /** Фото чека перевода / терминала (data URL). null — наличные или без фото */
+  checkPhoto: string | null;
 }
 export type PaymentState = 'paid' | 'partial' | 'unpaid';
 export interface PaymentRow {
@@ -667,7 +673,8 @@ export interface PartnerPublic {
   specialty: string;
   bio: string;
   code: string;
-  courses: PartnerCourse[];
+  /** Опубликованные курсы с программой: модули и названия уроков */
+  courses: (PartnerCourse & { program: { title: string; lessons: string[] }[] })[];
 }
 
 // ---------- AI-ментор ----------
@@ -736,4 +743,39 @@ export interface InventoryCheck {
   total: number;
   found: number;
   missing: { id: ID; invNo: string; name: string }[];
+}
+
+/** Модуль курса партнёра (партнёр сам собирает модули и уроки) */
+export interface PartnerModule {
+  id: ID;
+  courseId: ID;
+  title: string;
+  description: string;
+  order: number;
+  lessons: LessonSummary[];
+}
+export interface PartnerCourseBuilder {
+  course: PartnerCourse;
+  modules: PartnerModule[];
+}
+
+// ---------- Отчёт бухгалтера директору ----------
+export type AccountantReportStatus = 'draft' | 'sent' | 'accepted' | 'returned';
+/** Бухгалтер → директор: деньги за месяц. Принятый отчёт подставляется в отчёт директора SuperAdmin */
+export interface AccountantReport {
+  id: ID;
+  branchId: ID;
+  month: string;
+  status: AccountantReportStatus;
+  accountantName: string;
+  /** приход за месяц — из оплат, которые принял администратор */
+  income: number;
+  /** сколько оплат за месяц */
+  paymentsCount: number;
+  expenses: ReportExpense[];
+  comment: string;
+  directorComment: string | null;
+  createdAt: string;
+  sentAt: string | null;
+  reviewedAt: string | null;
 }

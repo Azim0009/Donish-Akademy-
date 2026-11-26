@@ -1,0 +1,90 @@
+import { http } from 'msw';
+import { ENDPOINTS } from '@/core/api/endpoints';
+import type { ReportExpense } from '@/core/types/models';
+import { EXPENSE_CATEGORIES } from '@/shared/lib/reports';
+import { ACC_BRANCH, accountantReports, monthIncome, newAccountantReport } from '../accounting';
+import { monthKey } from '../reports';
+import { resolveMe } from '../tasks';
+import { fail, ok, roleOf, url } from './utils';
+
+const isAcc = (r: Request) => roleOf(r) === 'accountant';
+const isDir = (r: Request) => roleOf(r) === 'director';
+
+export const accountingHandlers = [
+  // --- Бухгалтер ---
+  http.get(url(ENDPOINTS.accounting.reports), ({ request }) => {
+    if (!isAcc(request)) return fail(403, 'FORBIDDEN', 'Нет доступа');
+    // приход черновиков обновляем: администратор мог принять новые оплаты
+    accountantReports
+      .filter((r) => r.status === 'draft' || r.status === 'returned')
+      .forEach((r) => Object.assign(r, monthIncome(r.month)));
+    return ok([...accountantReports].sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
+  }),
+  http.post(url(ENDPOINTS.accounting.reports), async ({ request }) => {
+    if (!isAcc(request)) return fail(403, 'FORBIDDEN', 'Нет доступа');
+    const { month } = (await request.json()) as { month: string };
+    if (!/^\d{4}-\d{2}$/.test(month) || month > monthKey(0))
+      return fail(422, 'VALIDATION_ERROR', 'Неверный месяц');
+    const me = resolveMe(request.headers.get('X-Mock-User'), 'accountant');
+    const r = newAccountantReport(month, me.name);
+    accountantReports.push(r);
+    return ok(r, 201);
+  }),
+  http.put(url('/accountant/reports/:id'), async ({ params, request }) => {
+    if (!isAcc(request)) return fail(403, 'FORBIDDEN', 'Нет доступа');
+    const r = accountantReports.find((x) => x.id === params.id);
+    if (!r) return fail(404, 'ENTITY_NOT_FOUND', 'Отчёт не найден');
+    if (r.status === 'sent' || r.status === 'accepted')
+      return fail(409, 'CONFLICT', 'Отправленный отчёт нельзя менять');
+    const b = (await request.json()) as { expenses: ReportExpense[]; comment: string };
+    if (
+      !Array.isArray(b.expenses) ||
+      b.expenses.some((e) => !EXPENSE_CATEGORIES.includes(e.category) || !(Number(e.amount) >= 0))
+    )
+      return fail(422, 'VALIDATION_ERROR', 'Проверьте расходы: категория и сумма');
+    r.expenses = b.expenses.map((e) => ({
+      ...e,
+      amount: Math.round(Number(e.amount)),
+      note: (e.note ?? '').trim(),
+    }));
+    r.comment = (b.comment ?? '').trim();
+    return ok(r);
+  }),
+  http.post(url('/accountant/reports/:id/send'), ({ params, request }) => {
+    if (!isAcc(request)) return fail(403, 'FORBIDDEN', 'Нет доступа');
+    const r = accountantReports.find((x) => x.id === params.id);
+    if (!r) return fail(404, 'ENTITY_NOT_FOUND', 'Отчёт не найден');
+    if (r.status === 'sent' || r.status === 'accepted')
+      return fail(409, 'CONFLICT', 'Отчёт уже отправлен');
+    Object.assign(r, monthIncome(r.month), {
+      status: 'sent',
+      sentAt: new Date().toISOString(),
+      directorComment: null,
+    });
+    return ok(r);
+  }),
+
+  // --- Директор: принять или вернуть ---
+  http.get(url(ENDPOINTS.accounting.directorList), ({ request }) => {
+    if (!isDir(request)) return fail(403, 'FORBIDDEN', 'Нет доступа');
+    return ok(
+      accountantReports
+        .filter((r) => r.branchId === ACC_BRANCH && r.status !== 'draft')
+        .sort((a, b) => (b.sentAt ?? '').localeCompare(a.sentAt ?? '')),
+    );
+  }),
+  http.post(url('/director/accountant-reports/:id/review'), async ({ params, request }) => {
+    if (!isDir(request)) return fail(403, 'FORBIDDEN', 'Нет доступа');
+    const r = accountantReports.find((x) => x.id === params.id && x.status === 'sent');
+    if (!r) return fail(404, 'ENTITY_NOT_FOUND', 'Отчёт не найден или уже рассмотрен');
+    const { accept, comment } = (await request.json()) as { accept: boolean; comment?: string };
+    if (!accept && !comment?.trim())
+      return fail(422, 'VALIDATION_ERROR', 'Напишите, что исправить');
+    Object.assign(r, {
+      status: accept ? 'accepted' : 'returned',
+      directorComment: comment?.trim() || null,
+      reviewedAt: new Date().toISOString(),
+    });
+    return ok(r);
+  }),
+];
