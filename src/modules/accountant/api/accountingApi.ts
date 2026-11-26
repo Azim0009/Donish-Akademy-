@@ -2,7 +2,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/core/api/axiosClient';
 import { ENDPOINTS } from '@/core/api/endpoints';
 import type { ApiResponse } from '@/core/api/types';
-import type { AccountantReport, ReportExpense } from '@/core/types/models';
+import type {
+  AccountantReport,
+  BranchEmployee,
+  ReportExpense,
+  SalaryLine,
+} from '@/core/types/models';
 
 const E = ENDPOINTS.accounting;
 const data = <T>(p: Promise<{ data: ApiResponse<T> }>) => p.then((r) => r.data.data);
@@ -26,9 +31,25 @@ export const useCreateAccountantReport = () =>
     data(api.post<ApiResponse<AccountantReport>>(E.reports, period)),
   );
 export const useSaveAccountantReport = () =>
-  useAccMutation(({ id, ...b }: { id: string; expenses: ReportExpense[]; comment: string }) =>
-    data(api.put<ApiResponse<AccountantReport>>(E.report(id), b)),
+  useAccMutation(
+    ({
+      id,
+      ...b
+    }: {
+      id: string;
+      expenses: ReportExpense[];
+      salaries: SalaryLine[];
+      comment: string;
+    }) => data(api.put<ApiResponse<AccountantReport>>(E.report(id), b)),
   );
+/** сотрудники филиала — кого можно добавить в «Зарплаты» */
+export const useBranchEmployees = ({ enabled = true } = {}) =>
+  useQuery({
+    enabled,
+    queryKey: ['accounting', 'employees'],
+    queryFn: () => data(api.get<ApiResponse<BranchEmployee[]>>(E.employees)),
+    staleTime: 5 * 60_000,
+  });
 export const useSendAccountantReport = () =>
   useAccMutation((id: string) => data(api.post<ApiResponse<AccountantReport>>(E.send(id))));
 

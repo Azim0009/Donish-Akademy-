@@ -97,6 +97,8 @@ export const ENDPOINTS = {
     reports: '/accountant/reports',
     report: (id: string) => `/accountant/reports/${id}`,
     send: (id: string) => `/accountant/reports/${id}/send`,
+    /** сотрудники филиала — для блока «Зарплаты» */
+    employees: '/accountant/employees',
     /** директор: отчёты бухгалтера */
     directorList: '/director/accountant-reports',
     review: (id: string) => `/director/accountant-reports/${id}/review`,

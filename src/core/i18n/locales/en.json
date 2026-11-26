@@ -1650,7 +1650,7 @@
     "paymentsCount_one": "{{count}} payment",
     "paymentsCount_other": "{{count}} payments",
     "titleFor": "Report for {{period}}",
-    "editExpenses": "Expenses for the period",
+    "editExpenses": "Other expenses",
     "comment": "Comment for the director",
     "commentPh": "E.g. all reconciled with receipts…",
     "send": "Send to director",
@@ -1669,6 +1669,13 @@
     "dateTo": "To",
     "pickDates": "Pick the “from” and “to” dates",
     "fromAfterTo": "“From” is after “to”",
-    "toFuture": "“To” can’t be in the future"
+    "toFuture": "“To” can’t be in the future",
+    "salaries": "Salaries",
+    "otherExpenses": "Other expenses",
+    "employee": "Employee",
+    "addSalary": "Add salary",
+    "noSalaries": "No salaries added yet.",
+    "salaryNotePh": "E.g. advance, bonus",
+    "inclSalaries": "incl. salaries {{sum}}"
   }
 }

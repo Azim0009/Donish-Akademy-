@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiFileText, FiPlus, FiSend, FiTrash2 } from 'react-icons/fi';
+import { FiFileText, FiPlus, FiSend, FiTrash2, FiUserPlus } from 'react-icons/fi';
 import { getApiErrorMessage } from '@/core/api/axiosClient';
-import type { AccountantReport, ReportExpense } from '@/core/types/models';
+import type { AccountantReport, ReportExpense, SalaryLine } from '@/core/types/models';
 import {
   AccountantReportHeader,
   AccountantReportSummary,
@@ -24,6 +24,7 @@ import {
 } from '@/shared/ui';
 import {
   useAccountantReports,
+  useBranchEmployees,
   useCreateAccountantReport,
   useSaveAccountantReport,
   useSendAccountantReport,
@@ -130,18 +131,40 @@ function ReportItem({ r }: { r: AccountantReport }) {
   const send = useSendAccountantReport();
   const editable = r.status === 'draft' || r.status === 'returned';
   const [expenses, setExpenses] = useState<ReportExpense[]>(r.expenses);
+  const [salaries, setSalaries] = useState<SalaryLine[]>(r.salaries);
   const [comment, setComment] = useState(r.comment);
+  const employees = useBranchEmployees({ enabled: editable });
   useEffect(() => {
     setExpenses(r.expenses);
+    setSalaries(r.salaries);
     setComment(r.comment);
   }, [r]);
+  const setSal = (id: string, p: Partial<SalaryLine>) =>
+    setSalaries((xs) => xs.map((x) => (x.id === id ? { ...x, ...p } : x)));
+  const staff = employees.data ?? [];
+  const addSalary = () => {
+    // сначала предлагаем того, кого ещё нет в списке
+    const e = staff.find((s) => !salaries.some((x) => x.employeeId === s.id)) ?? staff[0];
+    if (!e) return;
+    setSalaries((xs) => [
+      ...xs,
+      {
+        id: `sal_${Date.now()}`,
+        employeeId: e.id,
+        employeeName: e.name,
+        role: e.role,
+        amount: 0,
+        note: '',
+      },
+    ]);
+  };
   const setExp = (id: string, p: Partial<ReportExpense>) =>
     setExpenses((xs) => xs.map((x) => (x.id === id ? { ...x, ...p } : x)));
   const onError = (e: unknown) => toast(getApiErrorMessage(e), 'error');
 
   const doSave = (then?: () => void) =>
     save.mutate(
-      { id: r.id, expenses, comment },
+      { id: r.id, expenses, salaries, comment },
       { onSuccess: () => (then ? then() : toast(t('reports.saved'), 'success')), onError },
     );
   const doSend = () =>
@@ -163,7 +186,66 @@ function ReportItem({ r }: { r: AccountantReport }) {
         <AccountantReportSummary r={r} />
       ) : (
         <>
-          <AccountantReportSummary r={{ ...r, expenses, comment: '' }} />
+          <AccountantReportSummary r={{ ...r, expenses, salaries }} lists={false} />
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-medium">{t('accReports.salaries')}</p>
+            {salaries.length === 0 && (
+              <p className="text-sm text-muted">{t('accReports.noSalaries')}</p>
+            )}
+            {salaries.map((x) => (
+              <div
+                key={x.id}
+                className="grid grid-cols-[1fr_auto] gap-2 rounded-ctl border border-line p-2 sm:grid-cols-[240px_130px_1fr_auto] sm:border-0 sm:p-0"
+              >
+                <Select
+                  aria-label={t('accReports.employee')}
+                  value={x.employeeId}
+                  onChange={(ev) => {
+                    const e = staff.find((s) => s.id === ev.target.value);
+                    if (e) setSal(x.id, { employeeId: e.id, employeeName: e.name, role: e.role });
+                  }}
+                  options={(staff.some((s) => s.id === x.employeeId)
+                    ? staff
+                    : [{ id: x.employeeId, name: x.employeeName, role: x.role }, ...staff]
+                  ).map((s) => ({ value: s.id, label: `${s.name} · ${t(`roles.${s.role}`)}` }))}
+                />
+                <IconButton
+                  label={t('common.delete')}
+                  className="text-danger sm:order-last"
+                  onClick={() => setSalaries((xs) => xs.filter((y) => y.id !== x.id))}
+                >
+                  <FiTrash2 />
+                </IconButton>
+                <Input
+                  aria-label={t('reports.amount')}
+                  type="number"
+                  min={0}
+                  inputMode="numeric"
+                  placeholder="TJS"
+                  value={x.amount || ''}
+                  onChange={(ev) => setSal(x.id, { amount: Number(ev.target.value) })}
+                />
+                <Input
+                  aria-label={t('reports.note')}
+                  placeholder={t('accReports.salaryNotePh')}
+                  value={x.note}
+                  maxLength={120}
+                  onChange={(ev) => setSal(x.id, { note: ev.target.value })}
+                  className="col-span-2 sm:col-span-1"
+                />
+              </div>
+            ))}
+            <Button
+              variant="ghost"
+              size="sm"
+              leftIcon={<FiUserPlus />}
+              className="self-start text-brand-strong"
+              disabled={staff.length === 0}
+              onClick={addSalary}
+            >
+              {t('accReports.addSalary')}
+            </Button>
+          </div>
           <div className="flex flex-col gap-2">
             <p className="text-sm font-medium">{t('accReports.editExpenses')}</p>
             {expenses.map((e) => (
@@ -177,7 +259,10 @@ function ReportItem({ r }: { r: AccountantReport }) {
                   onChange={(ev) =>
                     setExp(e.id, { category: ev.target.value as ReportExpense['category'] })
                   }
-                  options={EXPENSE_CATEGORIES.map((c) => ({
+                  // зарплаты — в своём блоке выше, здесь только прочие расходы
+                  options={EXPENSE_CATEGORIES.filter(
+                    (c) => c !== 'salary' || e.category === 'salary',
+                  ).map((c) => ({
                     value: c,
                     label: t(`reports.cat.${c}`),
                   }))}

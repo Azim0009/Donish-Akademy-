@@ -1,10 +1,11 @@
 import { http } from 'msw';
 import { ENDPOINTS } from '@/core/api/endpoints';
-import type { ReportExpense } from '@/core/types/models';
+import type { ReportExpense, SalaryLine } from '@/core/types/models';
 import { EXPENSE_CATEGORIES } from '@/shared/lib/reports';
 import {
   ACC_BRANCH,
   accountantReports,
+  branchEmployees,
   isoDay,
   newAccountantReport,
   periodIncome,
@@ -45,7 +46,11 @@ export const accountingHandlers = [
     if (!r) return fail(404, 'ENTITY_NOT_FOUND', 'Отчёт не найден');
     if (r.status === 'sent' || r.status === 'accepted')
       return fail(409, 'CONFLICT', 'Отправленный отчёт нельзя менять');
-    const b = (await request.json()) as { expenses: ReportExpense[]; comment: string };
+    const b = (await request.json()) as {
+      expenses: ReportExpense[];
+      salaries?: SalaryLine[];
+      comment: string;
+    };
     if (
       !Array.isArray(b.expenses) ||
       b.expenses.some((e) => !EXPENSE_CATEGORIES.includes(e.category) || !(Number(e.amount) >= 0))
@@ -56,8 +61,31 @@ export const accountingHandlers = [
       amount: Math.round(Number(e.amount)),
       note: (e.note ?? '').trim(),
     }));
+    if (b.salaries) {
+      const staff = new Map(branchEmployees().map((e) => [e.id, e]));
+      if (
+        !Array.isArray(b.salaries) ||
+        b.salaries.some((x) => !staff.has(x.employeeId) || !(Number(x.amount) >= 0))
+      )
+        return fail(422, 'VALIDATION_ERROR', 'Проверьте зарплаты: сотрудник и сумма');
+      r.salaries = b.salaries.map((x) => {
+        const e = staff.get(x.employeeId)!;
+        return {
+          id: x.id,
+          employeeId: e.id,
+          employeeName: e.name,
+          role: e.role,
+          amount: Math.round(Number(x.amount)),
+          note: (x.note ?? '').trim(),
+        };
+      });
+    }
     r.comment = (b.comment ?? '').trim();
     return ok(r);
+  }),
+  http.get(url(ENDPOINTS.accounting.employees), ({ request }) => {
+    if (!isAcc(request)) return fail(403, 'FORBIDDEN', 'Нет доступа');
+    return ok(branchEmployees());
   }),
   http.post(url('/accountant/reports/:id/send'), ({ params, request }) => {
     if (!isAcc(request)) return fail(403, 'FORBIDDEN', 'Нет доступа');

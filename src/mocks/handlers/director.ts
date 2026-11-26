@@ -6,7 +6,7 @@ import { ENDPOINTS } from '@/core/api/endpoints';
 import type { Group, GroupFormat, Lesson, UserListItem } from '@/core/types/models';
 import { MAIN_TRACK } from '@/core/config/course';
 import { db, getLesson, saveLessonEdit, stats } from '../db';
-import { acceptedAccountantReport } from '../accounting';
+import { acceptedAccountantReport, salaryTotal } from '../accounting';
 import { deletePerson, makeContract, updatePerson } from '../db';
 import { ok, fail, url, query, matches } from './utils';
 import { pct, revenue, monthRevenue } from '../finance';
@@ -133,7 +133,20 @@ export const directorHandlers = [
       metrics: liveMetrics(),
       income: acc ? acc.income : monthRevenue(BRANCH, month),
       expenses: acc
-        ? acc.expenses.map((e, i) => ({ ...e, id: `exp_${Date.now()}_${i}` }))
+        ? [
+            // зарплаты бухгалтера — одной строкой, остальные расходы как есть
+            ...(acc.salaries.length
+              ? [
+                  {
+                    id: `exp_${Date.now()}_sal`,
+                    category: 'salary' as const,
+                    amount: salaryTotal(acc),
+                    note: `Зарплаты (${acc.salaries.length} сотр.)`,
+                  },
+                ]
+              : []),
+            ...acc.expenses.map((e, i) => ({ ...e, id: `exp_${Date.now()}_${i}` })),
+          ]
         : prev
           ? prev.expenses.map((e, i) => ({ ...e, id: `exp_${Date.now()}_${i}` }))
           : defaultExpenses(branch),

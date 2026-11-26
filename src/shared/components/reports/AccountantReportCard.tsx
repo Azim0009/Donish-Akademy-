@@ -1,19 +1,40 @@
 import { useTranslation } from 'react-i18next';
 import type { AccountantReport } from '@/core/types/models';
 import { formatDate, formatDateTime, formatMoney } from '@/core/utils/format';
+import { reportStatusTone } from '@/shared/lib/reports';
+import { Badge } from '@/shared/ui';
 
 /** «1 нояб. – 26 нояб. 2026 г.» */
 const formatPeriod = (from: string, to: string) => {
   const d = (s: string) => new Date(`${s}T00:00:00`).toISOString();
   return `${formatDate(d(from), { day: 'numeric', month: 'short' })} – ${formatDate(d(to))}`;
 };
-import { reportStatusTone } from '@/shared/lib/reports';
-import { Badge } from '@/shared/ui';
 
-/** Цифры отчёта бухгалтера: приход, расходы, остаток + расходы по строкам */
-export function AccountantReportSummary({ r }: { r: AccountantReport }) {
+const sum = (xs: { amount: number }[]) => xs.reduce((s, x) => s + (Number(x.amount) || 0), 0);
+
+/** Строка «название … сумма» с пунктиром */
+function Row({ label, amount }: { label: string; amount: number }) {
+  return (
+    <li className="flex justify-between gap-3 border-b border-dashed border-line py-1">
+      <span className="text-muted">{label}</span>
+      <span className="shrink-0 whitespace-nowrap tabular-nums">{formatMoney(amount)}</span>
+    </li>
+  );
+}
+
+/** Цифры отчёта бухгалтера: приход, расходы, остаток + зарплаты и прочие расходы по строкам */
+export function AccountantReportSummary({
+  r,
+  lists = true,
+}: {
+  r: AccountantReport;
+  /** false — только плитки с цифрами (в редакторе строки и так видны) */
+  lists?: boolean;
+}) {
   const { t } = useTranslation();
-  const spent = r.expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+  const salaries = sum(r.salaries);
+  const other = sum(r.expenses);
+  const spent = salaries + other;
   const left = r.income - spent;
   return (
     <div className="flex flex-col gap-3">
@@ -24,7 +45,11 @@ export function AccountantReportSummary({ r }: { r: AccountantReport }) {
             r.income,
             t('accReports.paymentsCount', { count: r.paymentsCount }),
           ],
-          [t('accReports.expenses'), spent, ''],
+          [
+            t('accReports.expenses'),
+            spent,
+            t('accReports.inclSalaries', { sum: formatMoney(salaries) }),
+          ],
           [t('accReports.balance'), left, ''],
         ].map(([label, v, hint], i) => (
           <div
@@ -44,25 +69,43 @@ export function AccountantReportSummary({ r }: { r: AccountantReport }) {
           </div>
         ))}
       </div>
-      {r.expenses.length > 0 && (
-        <ul className="flex flex-col gap-1 text-sm">
-          {r.expenses.map((e) => (
-            <li
-              key={e.id}
-              className="flex justify-between gap-3 border-b border-dashed border-line py-1"
-            >
-              <span className="text-muted">
-                {t(`reports.cat.${e.category}`)}
-                {e.note && ` · ${e.note}`}
-              </span>
-              <span className="shrink-0 whitespace-nowrap tabular-nums">
-                {formatMoney(e.amount)}
-              </span>
-            </li>
-          ))}
-        </ul>
+      {lists && r.salaries.length > 0 && (
+        <div>
+          <p className="mb-1 flex justify-between text-sm font-medium">
+            <span>{t('accReports.salaries')}</span>
+            <span className="tabular-nums">{formatMoney(salaries)}</span>
+          </p>
+          <ul className="flex flex-col gap-1 text-sm">
+            {r.salaries.map((x) => (
+              <Row
+                key={x.id}
+                label={`${x.employeeName} · ${t(`roles.${x.role}`)}${x.note ? ` · ${x.note}` : ''}`}
+                amount={x.amount}
+              />
+            ))}
+          </ul>
+        </div>
       )}
-      {r.comment && <p className="rounded-ctl bg-sunken px-3 py-2 text-sm">💬 {r.comment}</p>}
+      {lists && r.expenses.length > 0 && (
+        <div>
+          <p className="mb-1 flex justify-between text-sm font-medium">
+            <span>{t('accReports.otherExpenses')}</span>
+            <span className="tabular-nums">{formatMoney(other)}</span>
+          </p>
+          <ul className="flex flex-col gap-1 text-sm">
+            {r.expenses.map((e) => (
+              <Row
+                key={e.id}
+                label={`${t(`reports.cat.${e.category}`)}${e.note ? ` · ${e.note}` : ''}`}
+                amount={e.amount}
+              />
+            ))}
+          </ul>
+        </div>
+      )}
+      {lists && r.comment && (
+        <p className="rounded-ctl bg-sunken px-3 py-2 text-sm">💬 {r.comment}</p>
+      )}
     </div>
   );
 }

@@ -1,4 +1,11 @@
-import type { AccountantReport, ReportExpense } from '@/core/types/models';
+import type { Role } from '@/core/auth/roles';
+import type {
+  AccountantReport,
+  BranchEmployee,
+  ReportExpense,
+  SalaryLine,
+} from '@/core/types/models';
+import { db } from './db';
 import { rangeRevenue } from './finance';
 import { allPayments } from './payments';
 
@@ -25,10 +32,40 @@ export const periodIncome = (from: string, to: string) => {
 
 const DEFAULT_EXPENSES: [ReportExpense['category'], number, string][] = [
   ['rent', 8000, 'Аренда помещения'],
-  ['salary', 32000, 'Зарплаты сотрудников'],
   ['utilities', 1150, 'Свет, вода, интернет'],
   ['ads', 1800, 'Реклама в Instagram'],
 ];
+
+const STAFF_ROLES: Role[] = [
+  'director',
+  'administrator',
+  'accountant',
+  'mentor',
+  'sales',
+  'cleaner',
+];
+/** демо-оклады, чтобы первый отчёт не был пустым — бухгалтер меняет на реальные */
+const DEMO_SALARY: Partial<Record<Role, number>> = {
+  director: 6000,
+  administrator: 3000,
+  accountant: 3500,
+  mentor: 4000,
+  sales: 2500,
+  cleaner: 1500,
+};
+
+/** Сотрудники филиала по порядку ролей */
+export const branchEmployees = (): BranchEmployee[] =>
+  db.users
+    .filter((u) => u.branchId === ACC_BRANCH && STAFF_ROLES.includes(u.role) && !u.isBlocked)
+    .sort(
+      (a, b) =>
+        STAFF_ROLES.indexOf(a.role) - STAFF_ROLES.indexOf(b.role) || a.name.localeCompare(b.name),
+    )
+    .map((u) => ({ id: u.id, name: u.name, role: u.role }));
+
+export const salaryTotal = (r: Pick<AccountantReport, 'salaries'>) =>
+  r.salaries.reduce((s, x) => s + (Number(x.amount) || 0), 0);
 
 export function newAccountantReport(
   dateFrom: string,
@@ -47,13 +84,28 @@ export function newAccountantReport(
     accountantName,
     ...periodIncome(dateFrom, dateTo),
     expenses: prev
-      ? prev.expenses.map((e, i) => ({ ...e, id: `aexp_${Date.now()}_${i}` }))
+      ? prev.expenses
+          .filter((e) => e.category !== 'salary')
+          .map((e, i) => ({ ...e, id: `aexp_${Date.now()}_${i}` }))
       : DEFAULT_EXPENSES.map(([category, amount, note], i) => ({
           id: `aexp_${Date.now()}_${i}`,
           category,
           amount,
           note,
         })),
+    // зарплаты: как в прошлом отчёте, иначе — все сотрудники филиала с демо-окладом
+    salaries: prev
+      ? prev.salaries.map((x, i) => ({ ...x, id: `sal_${Date.now()}_${i}` }))
+      : branchEmployees().map(
+          (e, i): SalaryLine => ({
+            id: `sal_${Date.now()}_${i}`,
+            employeeId: e.id,
+            employeeName: e.name,
+            role: e.role,
+            amount: DEMO_SALARY[e.role] ?? 0,
+            note: '',
+          }),
+        ),
     comment: '',
     directorComment: null,
     createdAt: now,

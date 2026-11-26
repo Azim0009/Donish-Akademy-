@@ -760,6 +760,21 @@ export interface PartnerCourseBuilder {
 }
 
 // ---------- Отчёт бухгалтера директору ----------
+/** Зарплата одному сотруднику в отчёте бухгалтера */
+export interface SalaryLine {
+  id: ID;
+  employeeId: ID;
+  employeeName: string;
+  role: Role;
+  amount: number;
+  note: string;
+}
+/** Сотрудник филиала — кому бухгалтер может выдать зарплату */
+export interface BranchEmployee {
+  id: ID;
+  name: string;
+  role: Role;
+}
 export type AccountantReportStatus = 'draft' | 'sent' | 'accepted' | 'returned';
 /** Бухгалтер → директор: деньги за месяц. Принятый отчёт подставляется в отчёт директора SuperAdmin */
 export interface AccountantReport {
@@ -776,7 +791,10 @@ export interface AccountantReport {
   income: number;
   /** сколько оплат за месяц */
   paymentsCount: number;
+  /** прочие расходы: аренда, коммуналка, реклама… (без зарплат) */
   expenses: ReportExpense[];
+  /** зарплаты — отдельно, по каждому сотруднику */
+  salaries: SalaryLine[];
   comment: string;
   directorComment: string | null;
   createdAt: string;
