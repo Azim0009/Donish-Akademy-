@@ -389,7 +389,14 @@ export interface AppNotification {
 
 // ---------- Отчёты филиала (директор → SuperAdmin) ----------
 export type ReportStatus = 'draft' | 'sent' | 'accepted' | 'returned';
-export type ExpenseCategory = 'rent' | 'salary' | 'utilities' | 'ads' | 'equipment' | 'other';
+export type ExpenseCategory =
+  | 'rent'
+  | 'salary'
+  | 'utilities'
+  | 'ads'
+  | 'purchase'
+  | 'equipment'
+  | 'other';
 export interface ReportExpense {
   id: ID;
   category: ExpenseCategory;
@@ -760,6 +767,28 @@ export interface PartnerCourseBuilder {
 }
 
 // ---------- Отчёт бухгалтера директору ----------
+/** Как оплатили расход */
+export type ExpenseMethod = 'cash' | 'card' | 'transfer';
+/** Запись в журнале расходов бухгалтера: каждая выплата и покупка отдельно */
+export interface ExpenseEntry {
+  id: ID;
+  branchId: ID;
+  /** «2026-11-05» — когда заплатили */
+  date: string;
+  category: ExpenseCategory;
+  amount: number;
+  /** для зарплаты — кому */
+  employeeId: ID | null;
+  employeeName: string | null;
+  employeeRole: Role | null;
+  /** что купили / за что заплатили */
+  description: string;
+  method: ExpenseMethod;
+  createdBy: string;
+  createdAt: string;
+  /** период уже в отправленном или принятом отчёте — менять нельзя */
+  locked: boolean;
+}
 /** Зарплата одному сотруднику в отчёте бухгалтера */
 export interface SalaryLine {
   id: ID;

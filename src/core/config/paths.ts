@@ -81,6 +81,7 @@ export const PATHS = {
   accountant: {
     root: '/accountant',
     reports: '/accountant/reports',
+    expenses: '/accountant/expenses',
     inventory: '/accountant/inventory',
     tasks: '/accountant/tasks',
     notifications: '/accountant/notifications',

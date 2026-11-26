@@ -145,7 +145,8 @@
     },
     "accountant": {
       "inventory": "Inventory",
-      "reports": "Reports"
+      "reports": "Reports",
+      "expenses": "Expenses"
     }
   },
   "validation": {
@@ -1052,7 +1053,8 @@
       "utilities": "Utilities",
       "ads": "Advertising",
       "equipment": "Equipment",
-      "other": "Other"
+      "other": "Other",
+      "purchase": "Purchases"
     },
     "m": {
       "students": "Students",
@@ -1640,9 +1642,9 @@
     "checkAlt": "Check for receipt {{no}}"
   },
   "accReports": {
-    "description": "Branch money report for the director over the dates you pick. Income fills in from the administrator’s payments; you enter the expenses.",
+    "description": "Branch money report for the director over the dates you pick. Income comes from the administrator’s payments, expenses from the “Expenses” section.",
     "empty": "No reports yet",
-    "newHint": "Income for these dates fills in from payments. Expenses carry over from the last report and can be edited.",
+    "newHint": "Income for these dates comes from payments; salaries and expenses come from the “Expenses” section.",
     "created": "Report created — check expenses and send it to the director",
     "income": "Income",
     "expenses": "Expenses",
@@ -1676,6 +1678,43 @@
     "addSalary": "Add salary",
     "noSalaries": "No salaries added yet.",
     "salaryNotePh": "E.g. advance, bonus",
-    "inclSalaries": "incl. salaries {{sum}}"
+    "inclSalaries": "incl. salaries {{sum}}",
+    "fromJournal": "Salaries and expenses fill in from the “Expenses” section for these dates. To fix something, edit the entry there.",
+    "openJournal": "Open “Expenses”"
+  },
+  "expenses": {
+    "pageDescription": "Branch expense journal: every salary payment, rent, utilities and everything purchased. The report to the director collects expenses from here automatically.",
+    "add": "Add expense",
+    "edit": "Edit expense",
+    "date": "Date",
+    "what": "To whom / what for",
+    "comment": "Comment",
+    "method": "Payment method",
+    "m": {
+      "cash": "Cash",
+      "card": "Card",
+      "transfer": "Transfer"
+    },
+    "pickEmployee": "Select an employee",
+    "noteSalary": "Comment (optional)",
+    "description": "What was it for",
+    "descriptionPh": "E.g. markers and paper, water for the cooler",
+    "errDate": "Enter the date",
+    "errFuture": "The date can’t be in the future",
+    "errAmount": "Amount must be greater than zero",
+    "errEmployee": "Select an employee",
+    "errDescription": "Write what it was for",
+    "added": "Expense recorded",
+    "updated": "Expense updated",
+    "deleted": "Entry deleted",
+    "deleteTitle": "Delete entry?",
+    "deleteText": "The entry will disappear from the journal and from the draft report for this period.",
+    "locked": "In report",
+    "lockedHint": "This period is already in a report sent to the director — the entry can’t be changed",
+    "kpiTotal": "Total for the period",
+    "kpiPurchases": "Purchases & equipment",
+    "kpiOther": "Rent & other",
+    "search": "Search by employee or description",
+    "empty": "No expenses for these dates"
   }
 }

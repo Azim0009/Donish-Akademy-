@@ -1,30 +1,28 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiFileText, FiPlus, FiSend, FiTrash2, FiUserPlus } from 'react-icons/fi';
+import { FiCreditCard, FiFileText, FiPlus, FiSend } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 import { getApiErrorMessage } from '@/core/api/axiosClient';
-import type { AccountantReport, ReportExpense, SalaryLine } from '@/core/types/models';
+import { PATHS } from '@/core/config/paths';
+import type { AccountantReport } from '@/core/types/models';
 import {
   AccountantReportHeader,
   AccountantReportSummary,
 } from '@/shared/components/reports/AccountantReportCard';
-import { EXPENSE_CATEGORIES } from '@/shared/lib/reports';
 import {
   Button,
   Card,
   EmptyState,
   ErrorState,
-  IconButton,
   Input,
   Loader,
   Modal,
   PageHeader,
-  Select,
   Textarea,
   toast,
 } from '@/shared/ui';
 import {
   useAccountantReports,
-  useBranchEmployees,
   useCreateAccountantReport,
   useSaveAccountantReport,
   useSendAccountantReport,
@@ -130,41 +128,13 @@ function ReportItem({ r }: { r: AccountantReport }) {
   const save = useSaveAccountantReport();
   const send = useSendAccountantReport();
   const editable = r.status === 'draft' || r.status === 'returned';
-  const [expenses, setExpenses] = useState<ReportExpense[]>(r.expenses);
-  const [salaries, setSalaries] = useState<SalaryLine[]>(r.salaries);
   const [comment, setComment] = useState(r.comment);
-  const employees = useBranchEmployees({ enabled: editable });
-  useEffect(() => {
-    setExpenses(r.expenses);
-    setSalaries(r.salaries);
-    setComment(r.comment);
-  }, [r]);
-  const setSal = (id: string, p: Partial<SalaryLine>) =>
-    setSalaries((xs) => xs.map((x) => (x.id === id ? { ...x, ...p } : x)));
-  const staff = employees.data ?? [];
-  const addSalary = () => {
-    // сначала предлагаем того, кого ещё нет в списке
-    const e = staff.find((s) => !salaries.some((x) => x.employeeId === s.id)) ?? staff[0];
-    if (!e) return;
-    setSalaries((xs) => [
-      ...xs,
-      {
-        id: `sal_${Date.now()}`,
-        employeeId: e.id,
-        employeeName: e.name,
-        role: e.role,
-        amount: 0,
-        note: '',
-      },
-    ]);
-  };
-  const setExp = (id: string, p: Partial<ReportExpense>) =>
-    setExpenses((xs) => xs.map((x) => (x.id === id ? { ...x, ...p } : x)));
+  useEffect(() => setComment(r.comment), [r]);
   const onError = (e: unknown) => toast(getApiErrorMessage(e), 'error');
 
   const doSave = (then?: () => void) =>
     save.mutate(
-      { id: r.id, expenses, salaries, comment },
+      { id: r.id, comment },
       { onSuccess: () => (then ? then() : toast(t('reports.saved'), 'success')), onError },
     );
   const doSend = () =>
@@ -182,131 +152,18 @@ function ReportItem({ r }: { r: AccountantReport }) {
           {t('accReports.directorSays')}: {r.directorComment}
         </p>
       )}
-      {!editable ? (
-        <AccountantReportSummary r={r} />
-      ) : (
+      <AccountantReportSummary r={editable ? { ...r, comment: '' } : r} />
+      {editable && (
         <>
-          <AccountantReportSummary r={{ ...r, expenses, salaries }} lists={false} />
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium">{t('accReports.salaries')}</p>
-            {salaries.length === 0 && (
-              <p className="text-sm text-muted">{t('accReports.noSalaries')}</p>
-            )}
-            {salaries.map((x) => (
-              <div
-                key={x.id}
-                className="grid grid-cols-[1fr_auto] gap-2 rounded-ctl border border-line p-2 sm:grid-cols-[240px_130px_1fr_auto] sm:border-0 sm:p-0"
-              >
-                <Select
-                  aria-label={t('accReports.employee')}
-                  value={x.employeeId}
-                  onChange={(ev) => {
-                    const e = staff.find((s) => s.id === ev.target.value);
-                    if (e) setSal(x.id, { employeeId: e.id, employeeName: e.name, role: e.role });
-                  }}
-                  options={(staff.some((s) => s.id === x.employeeId)
-                    ? staff
-                    : [{ id: x.employeeId, name: x.employeeName, role: x.role }, ...staff]
-                  ).map((s) => ({ value: s.id, label: `${s.name} · ${t(`roles.${s.role}`)}` }))}
-                />
-                <IconButton
-                  label={t('common.delete')}
-                  className="text-danger sm:order-last"
-                  onClick={() => setSalaries((xs) => xs.filter((y) => y.id !== x.id))}
-                >
-                  <FiTrash2 />
-                </IconButton>
-                <Input
-                  aria-label={t('reports.amount')}
-                  type="number"
-                  min={0}
-                  inputMode="numeric"
-                  placeholder="TJS"
-                  value={x.amount || ''}
-                  onChange={(ev) => setSal(x.id, { amount: Number(ev.target.value) })}
-                />
-                <Input
-                  aria-label={t('reports.note')}
-                  placeholder={t('accReports.salaryNotePh')}
-                  value={x.note}
-                  maxLength={120}
-                  onChange={(ev) => setSal(x.id, { note: ev.target.value })}
-                  className="col-span-2 sm:col-span-1"
-                />
-              </div>
-            ))}
-            <Button
-              variant="ghost"
-              size="sm"
-              leftIcon={<FiUserPlus />}
-              className="self-start text-brand-strong"
-              disabled={staff.length === 0}
-              onClick={addSalary}
+          <div className="flex flex-wrap items-center gap-3 rounded-ctl border border-line px-3 py-2 text-sm">
+            <FiCreditCard className="shrink-0 text-brand-strong" aria-hidden />
+            <p className="min-w-0 flex-1 text-muted">{t('accReports.fromJournal')}</p>
+            <Link
+              to={PATHS.accountant.expenses}
+              className="font-medium text-brand-strong hover:underline"
             >
-              {t('accReports.addSalary')}
-            </Button>
-          </div>
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium">{t('accReports.editExpenses')}</p>
-            {expenses.map((e) => (
-              <div
-                key={e.id}
-                className="grid grid-cols-[1fr_auto] gap-2 rounded-ctl border border-line p-2 sm:grid-cols-[170px_130px_1fr_auto] sm:border-0 sm:p-0"
-              >
-                <Select
-                  aria-label={t('reports.category')}
-                  value={e.category}
-                  onChange={(ev) =>
-                    setExp(e.id, { category: ev.target.value as ReportExpense['category'] })
-                  }
-                  // зарплаты — в своём блоке выше, здесь только прочие расходы
-                  options={EXPENSE_CATEGORIES.filter(
-                    (c) => c !== 'salary' || e.category === 'salary',
-                  ).map((c) => ({
-                    value: c,
-                    label: t(`reports.cat.${c}`),
-                  }))}
-                />
-                <IconButton
-                  label={t('common.delete')}
-                  className="text-danger sm:order-last"
-                  onClick={() => setExpenses((xs) => xs.filter((x) => x.id !== e.id))}
-                >
-                  <FiTrash2 />
-                </IconButton>
-                <Input
-                  aria-label={t('reports.amount')}
-                  type="number"
-                  min={0}
-                  inputMode="numeric"
-                  placeholder="TJS"
-                  value={e.amount || ''}
-                  onChange={(ev) => setExp(e.id, { amount: Number(ev.target.value) })}
-                />
-                <Input
-                  aria-label={t('reports.note')}
-                  placeholder={t('reports.note')}
-                  value={e.note}
-                  maxLength={120}
-                  onChange={(ev) => setExp(e.id, { note: ev.target.value })}
-                  className="col-span-2 sm:col-span-1"
-                />
-              </div>
-            ))}
-            <Button
-              variant="ghost"
-              size="sm"
-              leftIcon={<FiPlus />}
-              className="self-start text-brand-strong"
-              onClick={() =>
-                setExpenses((xs) => [
-                  ...xs,
-                  { id: `aexp_${Date.now()}`, category: 'other', amount: 0, note: '' },
-                ])
-              }
-            >
-              {t('reports.addExpense')}
-            </Button>
+              {t('accReports.openJournal')}
+            </Link>
           </div>
           <Textarea
             label={t('accReports.comment')}

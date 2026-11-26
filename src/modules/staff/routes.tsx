@@ -9,7 +9,10 @@ import { MENUS } from '@/core/navigation/menus';
 const StaffHomePage = lazy(() => import('./pages/StaffHomePage'));
 const LeadsPage = lazy(() => import('@/modules/leads/pages/LeadsPage'));
 const InventoryPage = lazy(() => import('@/modules/accountant/pages/InventoryPage'));
-const AccountantReportsPage = lazy(() => import('@/modules/accountant/pages/AccountantReportsPage'));
+const ExpensesPage = lazy(() => import('@/modules/accountant/pages/ExpensesPage'));
+const AccountantReportsPage = lazy(
+  () => import('@/modules/accountant/pages/AccountantReportsPage'),
+);
 const TasksPage = lazy(() => import('@/modules/tasks/pages/TasksPage'));
 const NotificationsPage = lazy(() => import('@/modules/notifications/pages/NotificationsPage'));
 const AccountSettingsPage = lazy(() => import('@/modules/account/pages/AccountSettingsPage'));
@@ -38,6 +41,7 @@ function staffRoutes(role: StaffRole): RouteObject {
         ? [
             { path: PATHS.accountant.inventory, element: <InventoryPage /> },
             { path: PATHS.accountant.reports, element: <AccountantReportsPage /> },
+            { path: PATHS.accountant.expenses, element: <ExpensesPage /> },
           ]
         : []),
       { path: p.tasks, element: <TasksPage /> },

@@ -6,6 +6,7 @@ export const EXPENSE_CATEGORIES: ExpenseCategory[] = [
   'salary',
   'utilities',
   'ads',
+  'purchase',
   'equipment',
   'other',
 ];
